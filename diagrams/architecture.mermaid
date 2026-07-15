@@ -1,0 +1,64 @@
+graph TB
+    subgraph "User Interface"
+        CLI["CLI Controller (src/ui/cli.py)"]
+    end
+
+    subgraph "Agent Core"
+        SP["System Prompt (prompts/system_prompt.txt)"]
+        REACT["ReAct FSM (src/agent/react_loop.py)"]
+        TR["Tool Registry (src/agent/tool_registry.py)"]
+        PL["Prompt Loader (src/agent/prompt_loader.py)"]
+    end
+
+    subgraph "Tools Layer (4 Tools)"
+        T1["get_course_info (src/tools/course_info.py)"]
+        T2["get_prerequisite (src/tools/prerequisites.py)"]
+        T3["calculate_learning_time (src/tools/feasibility.py)"]
+        T4["generate_learning_plan (src/tools/learning_plan.py) — orchestrator"]
+    end
+
+    subgraph "Data Layer"
+        D1["courses.json (10 courses)"]
+        D2["prerequisites.json (dependency graph)"]
+    end
+
+    subgraph "Models (Pydantic v2)"
+        M1["Course / Topic"]
+        M2["LearningPath"]
+        M3["DailyPlan"]
+        M4["FeasibilityResult"]
+        M5["PrerequisiteCheck"]
+    end
+
+    CLI --> REACT
+    SP --> PL
+    PL --> REACT
+    REACT --> TR
+    TR --> T1
+    TR --> T2
+    TR --> T3
+    TR --> T4
+
+    T1 --> D1
+    T2 --> D2
+    T3 --> D1
+    T4 --> T1
+    T4 --> T2
+    T4 --> T3
+
+    T1 -.-> M1
+    T2 -.-> M5
+    T3 -.-> M4
+    T4 -.-> M2
+    T4 -.-> M3
+
+    REACT --> CLI
+
+    style CLI fill:#e1f5fe,stroke:#01579b
+    style REACT fill:#fff3e0,stroke:#e65100
+    style T1 fill:#e8f5e9,stroke:#1b5e20
+    style T2 fill:#e8f5e9,stroke:#1b5e20
+    style T3 fill:#e8f5e9,stroke:#1b5e20
+    style T4 fill:#c8e6c9,stroke:#2e7d32
+    style D1 fill:#f3e5f5,stroke:#4a148c
+    style D2 fill:#f3e5f5,stroke:#4a148c

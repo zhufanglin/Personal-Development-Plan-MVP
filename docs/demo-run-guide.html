@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Learning Planner Agent — Demo 运行演示指南</title>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #12171f;
+    --card: #181e28;
+    --border: #252b36;
+    --text: #b8c5d6;
+    --heading: #e2e8f4;
+    --muted: #6b7a8f;
+    --accent: #5c9eff;
+    --accent-dim: #354866;
+    --pass: #3fb950;
+    --fail: #f85149;
+    --warn: #d2991d;
+    --purple: #a371f7;
+    --teal: #39c5cf;
+    --orange: #f0883e;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+    line-height: 1.7; font-size: 15px;
+  }
+
+  /* ── Navigation ─────────────────────────── */
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,20,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 2rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .topnav .logo { font-weight: 700; color: var(--heading); font-size: 0.95rem; white-space: nowrap; }
+  .topnav a {
+    color: var(--muted); text-decoration: none; font-size: 0.82rem;
+    transition: color 0.15s; white-space: nowrap;
+  }
+  .topnav a:hover { color: var(--accent); }
+  .topnav .badge-nav {
+    font-size: 0.7rem; padding: 0.15em 0.55em; border-radius: 2em;
+    background: #1a3a1f; color: var(--pass); border: 1px solid #2d5a32;
+  }
+
+  /* ── Layout ─────────────────────────────── */
+  .container { max-width: 1020px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+  h1 { font-size: 2.4rem; font-weight: 800; color: #f0f6fc; letter-spacing: -0.02em; line-height: 1.25; }
+  h2 { font-size: 1.55rem; font-weight: 700; color: var(--heading); margin: 3rem 0 1.2rem; padding-bottom: 0.45rem; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 1.15rem; font-weight: 600; color: #d0d8e6; margin: 1.6rem 0 0.6rem; }
+  h4 { font-size: 0.95rem; font-weight: 600; color: var(--text); margin: 1rem 0 0.4rem; }
+
+  p { margin: 0.6rem 0; }
+  a { color: var(--accent); }
+
+  /* ── Hero ───────────────────────────────── */
+  .hero {
+    text-align: center; padding: 3.5rem 1rem 2.5rem;
+    background: radial-gradient(ellipse 80% 70% at 50% 0%, rgba(92,158,255,0.08) 0%, transparent 70%);
+    border-bottom: 1px solid var(--border); margin-bottom: 1rem;
+  }
+  .hero h1 { margin-bottom: 0.4rem; }
+  .hero .subtitle { font-size: 1.15rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .tag-row {
+    display: flex; justify-content: center; gap: 0.55rem; flex-wrap: wrap; margin-bottom: 1.2rem;
+  }
+  .tag {
+    display: inline-block; padding: 0.25em 0.8em; border-radius: 2em;
+    font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+  }
+  .tag-python  { background: #1e2a3a; color: #5c9eff; border: 1px solid #2d4a7a; }
+  .tag-react   { background: #1a2e1f; color: #3fb950; border: 1px solid #2d5a32; }
+  .tag-tool    { background: #2a201e; color: #f0883e; border: 1px solid #5a3d2d; }
+  .tag-dag     { background: #1e1a2e; color: #a371f7; border: 1px solid #3d2d5a; }
+  .tag-trace   { background: #1a262e; color: #39c5cf; border: 1px solid #2d4a5a; }
+  .tag-offline { background: #1a3a1f; color: #3fb950; border: 1px solid #2d5a32; font-size: 0.9rem; padding: 0.4em 1.2em; }
+
+  .offline-notice {
+    margin-top: 1.2rem; padding: 0.8rem 1.5rem;
+    background: #0f1d14; border: 1px solid #1a3d22; border-radius: var(--radius);
+    display: inline-block; color: #7ee787; font-size: 0.9rem;
+  }
+
+  /* ── Cards ──────────────────────────────── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.4rem 1.6rem; margin-bottom: 1.2rem;
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 0.8rem; gap: 1rem;
+  }
+  .card-header h3 { margin: 0; }
+
+  .badge {
+    display: inline-block; padding: 0.12em 0.6em; border-radius: 2em;
+    font-weight: 600; font-size: 0.78rem; white-space: nowrap;
+  }
+  .badge-pass { background: #1a3a1f; color: var(--pass); border: 1px solid #2d5a32; }
+  .badge-info { background: #1a2638; color: var(--accent); border: 1px solid #2d4a7a; }
+  .badge-warn { background: #2e2412; color: var(--warn); border: 1px solid #5a4a2d; }
+
+  /* ── Code ───────────────────────────────── */
+  pre {
+    background: #0a0e14; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.55;
+    margin: 0.75rem 0;
+  }
+  code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Microsoft YaHei Mono', monospace; }
+  .cmd { color: var(--accent); }
+  .out { color: var(--muted); }
+
+  /* ── Tables ─────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.9rem; }
+  th, td { padding: 0.55rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+  .tbl-ok { color: var(--pass); font-weight: 600; }
+
+  /* ── Step flow ──────────────────────────── */
+  .step-flow {
+    display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center;
+    margin: 1rem 0; font-size: 0.84rem;
+  }
+  .step-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 0.45rem 0.8rem; text-align: center; white-space: nowrap;
+  }
+  .step-box.think { border-color: #5c9eff55; background: #121d2e; color: var(--accent); }
+  .step-box.tool  { border-color: #f0883e55; background: #1e1814; color: var(--orange); }
+  .step-box.obs   { border-color: #a371f755; background: #18141e; color: var(--purple); }
+  .step-box.resp  { border-color: #3fb95055; background: #0f1d14; color: var(--pass); }
+  .step-arrow { color: var(--muted); font-weight: 700; font-size: 1rem; }
+
+  /* ── Demo cards (colored left border) ───── */
+  .demo-card {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0; padding: 1.2rem 1.5rem; margin-bottom: 1.2rem;
+  }
+  .demo-card.d2 { border-left-color: var(--purple); }
+  .demo-card.d3 { border-left-color: var(--orange); }
+
+  .demo-card .demo-num {
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ── Grids ──────────────────────────────── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.45rem; }
+  .check-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.75rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 0.88rem;
+  }
+
+  /* ── KPI ────────────────────────────────── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem; text-align: center;
+  }
+  .kpi .val { font-size: 2rem; font-weight: 800; color: #f0f6fc; }
+  .kpi .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── Architecture diagram (pure CSS) ────── */
+  .arch-row {
+    display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center;
+    margin: 1.2rem 0;
+  }
+  .arch-block {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 1.3rem; text-align: center; min-width: 120px;
+  }
+  .arch-block h4 { margin: 0 0 0.3rem; font-size: 0.9rem; }
+  .arch-block .sub { font-size: 0.78rem; color: var(--muted); }
+  .arch-arrow { font-size: 1.4rem; color: var(--muted); }
+
+  /* ── Comparison table ───────────────────── */
+  .cmp-yes { color: var(--pass); }
+  .cmp-no  { color: var(--fail); }
+
+  /* ── Collapsible (optional) ─────────────── */
+  details { margin: 0.6rem 0; }
+  details summary {
+    cursor: pointer; color: var(--accent); font-weight: 600; font-size: 0.9rem;
+    padding: 0.4rem 0;
+  }
+  details summary:hover { color: #7ab4ff; }
+
+  /* ── Footer ─────────────────────────────── */
+  .footer {
+    text-align: center; color: var(--muted); font-size: 0.8rem;
+    margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+  }
+
+  /* ── Responsive ─────────────────────────── */
+  @media (max-width: 768px) {
+    .container { padding: 1rem; }
+    h1 { font-size: 1.7rem; }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .arch-row { flex-direction: column; }
+    .arch-arrow { transform: rotate(90deg); }
+    .topnav { padding: 0.5rem 1rem; gap: 0.7rem; }
+  }
+
+  /* ── Print ──────────────────────────────── */
+  @media print {
+    body { background: #fff; color: #222; font-size: 12px; }
+    .topnav { display: none; }
+    .card, .demo-card, pre { border: 1px solid #ccc; background: #fafafa; }
+    h1, h2, h3 { color: #111; }
+    .badge, .tag { border: 1px solid #999; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TOP NAV -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<nav class="topnav">
+  <span class="logo">📋 CLA · Demo Guide</span>
+  <a href="#hero">首页</a>
+  <a href="#env">环境准备</a>
+  <a href="#demo-overview">Demo 总览</a>
+  <a href="#demo1">Demo 1</a>
+  <a href="#demo2">Demo 2</a>
+  <a href="#demo3">Demo 3</a>
+  <a href="#arch">架构</a>
+  <a href="#script">答辩脚本</a>
+  <span class="badge-nav">Offline Ready</span>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 1. HERO -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <h1>Course Learning Planner Agent</h1>
+  <p class="subtitle">基于 ReAct + Tool Calling 的智能课程学习规划 Agent</p>
+
+  <div class="tag-row">
+    <span class="tag tag-python">🐍 Python 3.12</span>
+    <span class="tag tag-react">🔄 ReAct Agent</span>
+    <span class="tag tag-tool">🔧 Tool Calling</span>
+    <span class="tag tag-dag">🔗 DAG Dependency</span>
+    <span class="tag tag-trace">📊 Trace</span>
+  </div>
+
+  <div class="tag-row">
+    <span class="tag tag-offline">⚡ Offline Demo Ready</span>
+  </div>
+
+  <div class="offline-notice">
+    🔌 <strong>离线稳定演示</strong> — 系统使用规则化 ReAct 状态机，<br>
+    无需 DeepSeek API Key · 无需 OpenAI Key · 无需网络连接
+  </div>
+</section>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 2. 环境准备 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="env">🔧 环境准备</h2>
+
+<div class="card">
+  <h3>项目启动</h3>
+  <pre><span class="cmd">cd</span> Course-Learning-Agent
+
+<span class="cmd">pip install</span> -r requirements.txt</pre>
+
+  <h4>依赖清单 (requirements.txt)</h4>
+  <table>
+    <tr><th>依赖</th><th>版本</th><th>用途</th></tr>
+    <tr><td><code>pydantic</code></td><td>≥ 2.0.0</td><td>数据模型验证 (Course / Topic / FeasibilityResult)</td></tr>
+    <tr><td><code>pytest</code></td><td>≥ 7.0.0</td><td>单元测试框架 (162 个测试用例)</td></tr>
+    <tr><td><code>pytest-cov</code></td><td>≥ 4.0.0</td><td>测试覆盖率报告</td></tr>
+    <tr><td><code>openai</code></td><td>≥ 1.0.0</td><td>DeepSeek LLM 集成 (可选，离线模式不需要)</td></tr>
+  </table>
+
+  <p style="color:var(--muted);font-size:0.85rem;">
+    💡 <strong>答辩提示：</strong>依赖极简，仅 4 个包。pydantic + pytest 是标准库外仅有的必需依赖。
+  </p>
+</div>
+
+<div class="card">
+  <h3>项目结构 (关键文件)</h3>
+  <pre>Course-Learning-Agent/
+├── <span class="cmd">demo.py</span>                  ← 🔥 答辩入口脚本
+├── <span class="cmd">requirements.txt</span>          ← 依赖清单
+├── <span class="cmd">config/.env.example</span>       ← 配置模板
+├── <span class="cmd">data/courses.json</span>         ← 10 门课程数据
+├── src/
+│   ├── agent/
+│   │   ├── runner.py           ← AgentRunner 顶层编排
+│   │   ├── react_loop.py       ← RuleBasedReActAgent 状态机
+│   │   ├── tool_registry.py    ← ToolRegistry 注册中心
+│   │   ├── prompt_loader.py    ← System Prompt 加载器
+│   │   ├── llm_react.py        ← LLMReActAgent (需API Key)
+│   │   └── tool_adapter.py     ← Tool → OpenAI function 适配
+│   ├── tools/
+│   │   ├── course_info.py      ← Tool 1: 课程查询
+│   │   ├── prerequisites.py    ← Tool 2: 先修树递归展开
+│   │   ├── feasibility.py      ← Tool 3: 时间可行性评估
+│   │   ├── learning_plan.py    ← Tool 4: 完整计划编排
+│   │   ├── scheduler.py        ← 每日计划调度算法
+│   │   └── resource_provider.py ← 学习资源推荐
+│   ├── models/                 ← Pydantic 数据模型
+│   ├── providers/              ← LLM Provider (DeepSeek)
+│   └── exceptions.py           ← 7 种业务异常类
+├── tests/                      ← 162 个单元测试
+├── prompts/                    ← System Prompt 模板
+└── docs/                       ← 设计文档 + 答辩材料</pre>
+</div>
+
+<div class="card">
+  <h3>快速验证</h3>
+  <table>
+    <tr><th>命令</th><th>预期结果</th></tr>
+    <tr>
+      <td><code>python demo.py</code></td>
+      <td class="tbl-ok">✅ 生成 Python 课程 7 模块学习计划</td>
+    </tr>
+    <tr>
+      <td><code>pytest tests/ -v</code></td>
+      <td class="tbl-ok">✅ 162 passed in ~0.3s</td>
+    </tr>
+    <tr>
+      <td><code>python -c "import src.agent.runner"</code></td>
+      <td class="tbl-ok">✅ 无错误输出</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 3. Demo 总览 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="demo-overview">🎯 Demo 总览</h2>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="val">3</div><div class="lbl">Demo 场景</div></div>
+  <div class="kpi"><div class="val">4</div><div class="lbl">Tool 工具</div></div>
+  <div class="kpi"><div class="val">10</div><div class="lbl">课程数据</div></div>
+  <div class="kpi"><div class="val">13</div><div class="lbl">ReAct Trace 步数</div></div>
+  <div class="kpi"><div class="val">162</div><div class="lbl">单元测试</div></div>
+  <div class="kpi"><div class="val">0.3s</div><div class="lbl">测试耗时</div></div>
+</div>
+
+<table>
+  <tr><th>#</th><th>Demo 名称</th><th>命令</th><th>展示能力</th><th>预期结果</th></tr>
+  <tr>
+    <td><strong>1</strong></td>
+    <td>正常规划流程</td>
+    <td><code>python demo.py</code></td>
+    <td>完整 4 步 ReAct 工作流</td>
+    <td><span class="badge badge-pass">成功</span> 生成学习计划</td>
+  </tr>
+  <tr>
+    <td><strong>2</strong></td>
+    <td>先修冲突检测</td>
+    <td><code>python demo.py --prereq</code></td>
+    <td>DAG 先修树递归 + 阻断</td>
+    <td><span class="badge badge-warn">冲突</span> 检测 4 门缺失先修课</td>
+  </tr>
+  <tr>
+    <td><strong>3</strong></td>
+    <td>自定义参数</td>
+    <td><code>python demo.py --course Java --hours 2 --days 20</code></td>
+    <td>灵活参数 + 不同课程</td>
+    <td><span class="badge badge-pass">成功</span> 生成 Java 学习计划</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 4. Demo 1: 正常规划流程 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="demo1">📌 Demo 1 — 正常规划流程 (核心)</h2>
+
+<div class="demo-card">
+  <div class="demo-num" style="color:var(--accent);">Demo 1 · 正常路径</div>
+  <h3 style="margin-top:0;">展示完整的 ReAct 学习规划工作流</h3>
+
+  <h4>运行命令</h4>
+  <pre><span class="cmd">python demo.py</span></pre>
+
+  <h4>展示能力</h4>
+  <div class="check-grid">
+    <div class="check-item">✅ AgentRunner 顶层编排</div>
+    <div class="check-item">✅ RuleBasedReActAgent 状态机</div>
+    <div class="check-item">✅ ToolRegistry 注册 + 调度</div>
+    <div class="check-item">✅ 4 个 Tool 依次执行</div>
+    <div class="check-item">✅ ReAct Trace 完整记录</div>
+    <div class="check-item">✅ 学习路径 + 每日计划 + 资源推荐</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Agent 执行流程 — 4 步 ReAct Loop</h3>
+
+  <div class="step-flow">
+    <div class="step-box think">💭 THINKING</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box tool">🔧 get_course_info</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box obs">👁️ OBSERVATION</div>
+  </div>
+  <div class="step-flow">
+    <div class="step-box think">💭 THINKING</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box tool">🔧 get_prerequisite</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box obs">👁️ OBSERVATION</div>
+    <span class="step-arrow" style="color:var(--warn);">⛔ 阻断检查</span>
+  </div>
+  <div class="step-flow">
+    <div class="step-box think">💭 THINKING</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box tool">🔧 calculate_learning_time</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box obs">👁️ OBSERVATION</div>
+    <span class="step-arrow" style="color:var(--warn);">⛔ 阻断检查</span>
+  </div>
+  <div class="step-flow">
+    <div class="step-box think">💭 THINKING</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box tool">🔧 generate_learning_plan</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box obs">👁️ OBSERVATION</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box resp">✅ RESPONSE</div>
+  </div>
+
+  <p style="color:var(--muted);font-size:0.85rem;margin-top:1rem;">
+    💡 <strong>答辩解释要点：</strong>这是经典的 ReAct 范式。Agent 按 EXECUTION_PLAN 依次执行，
+    每个 Tool 调用后检查阻断条件（先修冲突 / 时间不足），只有全部通过才进入下一步。
+    整个过程完全可追踪（13 步 Trace）。
+  </p>
+</div>
+
+<div class="card">
+  <h3>4 个 Tool 详解</h3>
+  <table>
+    <tr><th>Step</th><th>Tool 名称</th><th>输入</th><th>输出</th><th>阻断检查</th></tr>
+    <tr>
+      <td>1</td>
+      <td><code>get_course_info</code></td>
+      <td>course_name</td>
+      <td>课程元数据 (学时/难度/先修课/主题模块)</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code>get_prerequisite</code></td>
+      <td>course_name + user_knowledge</td>
+      <td>先修满足状态 + missing 列表 + 所需学时</td>
+      <td>⛔ PREREQ_CONFLICT</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>calculate_learning_time</code></td>
+      <td>course_name + daily_hours + duration_days</td>
+      <td>可行性 + buffer + 3 种调整方案</td>
+      <td>⛔ TIME_INSUFFICIENT</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>generate_learning_plan</code></td>
+      <td>course_name + 所有累积上下文</td>
+      <td>plan_id + 学习路径 + 每日计划 + 资源</td>
+      <td>— (最后一步)</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>预期输出 (摘要)</h3>
+  <pre>============================================================
+  Course Learning Planner Agent — 离线模式
+  课程: Python | 每日 3h | 12 天
+============================================================
+
+  计划生成成功!
+
+  <span class="out">[课程]</span> Python
+  <span class="out">[模块]</span> 7 个
+     - 必修: 6
+     - 可选: 1
+  <span class="out">[天数]</span> 10 天
+     - 学习: 8 天
+     - 复习: 1 天
+     - 评估: 1 天
+  <span class="out">[资源]</span> 9 条
+  <span class="out">[Trace]</span> 13 步
+
+  ── 学习路径 ──────────────────────────────
+  1. 变量与数据类型 (3.0h) [必修]
+  2. 流程控制 (3.0h) [必修]
+  ...
+  7. Python 进阶特性 (2.0h) [可选]
+
+  ── 每日计划 (前5天) ─────────────────────
+  Day  1 [study     ] 变量与数据类型 (3.0h)
+  ...
+
+  ✅ 离线模式运行成功 (Trace: 13 步)</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 5. Demo 2: 先修冲突 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="demo2">📌 Demo 2 — 先修冲突检测</h2>
+
+<div class="demo-card d2">
+  <div class="demo-num" style="color:var(--purple);">Demo 2 · 边界处理</div>
+  <h3 style="margin-top:0;">展示 DAG 先修树递归展开 + 阻断机制</h3>
+
+  <h4>运行命令</h4>
+  <pre><span class="cmd">python demo.py --prereq</span></pre>
+
+  <h4>展示能力</h4>
+  <div class="check-grid">
+    <div class="check-item">✅ 递归展开 5 层先修树</div>
+    <div class="check-item">✅ DAG 共享依赖去重</div>
+    <div class="check-item">✅ 循环依赖检测</div>
+    <div class="check-item">✅ 阻断条件触发 (PREREQ_CONFLICT)</div>
+    <div class="check-item">✅ 第 2 步正确终止</div>
+    <div class="check-item">✅ 不浪费后续 Tool 调用</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>先修树展开示意 (Spark 课程)</h3>
+  <pre>Spark
+├── Python <span class="out">(必修, 24h)</span>
+├── Hadoop <span class="out">(必修, 24h)</span>
+│   ├── Linux <span class="out">(必修, 16h)</span>
+│   └── Java <span class="out">(必修, 32h)</span>
+├── Linux <span class="out">(必修, 16h)</span>  ← DAG共享依赖，不重复展开
+└── Java <span class="out">(必修, 32h)</span>    ← DAG共享依赖，不重复展开
+
+<span style="color:var(--fail);">总先修学时: 112h  |  缺失 4 门</span></pre>
+</div>
+
+<div class="card">
+  <h3>ReAct 阻断流程</h3>
+  <div class="step-flow">
+    <div class="step-box think">💭 查询 Spark 课程信息</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box tool">🔧 get_course_info</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box obs">👁️ Spark, 36h, advanced</div>
+  </div>
+  <div class="step-flow">
+    <div class="step-box think">💭 检查先修条件</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box tool">🔧 get_prerequisite</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box obs">👁️ satisfied=false</div>
+    <span class="step-arrow">→</span>
+    <div class="step-box resp" style="background:#1a1414;color:var(--fail);border-color:#5a2d2d;">⛔ 阻断终止</div>
+  </div>
+  <p style="color:var(--muted);font-size:0.85rem;margin-top:0.8rem;">
+    💡 <strong>答辩解释要点：</strong>Agent 在第 2 步检测到先修冲突后，立即终止 ——
+    不会继续执行 calculate_learning_time 和 generate_learning_plan。
+    这是 Agent 智能决策的体现：<em>不是盲目执行全部步骤，而是每一步都有阻断检查</em>。
+  </p>
+</div>
+
+<div class="card">
+  <h3>预期输出</h3>
+  <pre>============================================================
+  Demo: 先修条件冲突检测
+  课程: Spark | 每日 2h | 30 天 | 无已有知识
+============================================================
+
+  <span class="out">[WARNING]</span> PREREQUISITE_CONFLICT
+  先修条件不满足: 缺少 4 门先修课。总先修学时: 112h。
+
+  缺失先修课:
+    - Python
+    - Hadoop
+    - Linux
+    - Java
+
+  总先修学时: 112h
+  建议: 完成上述先修课程后再学习 Spark。
+
+  📊 Trace: 7 步
+  ✅ Agent 在第 2 步正确终止，未浪费后续 Tool 调用</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 6. Demo 3: 自定义参数 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="demo3">📌 Demo 3 — 自定义参数 + 时间不足场景</h2>
+
+<div class="demo-card d3">
+  <div class="demo-num" style="color:var(--orange);">Demo 3 · 灵活参数</div>
+  <h3 style="margin-top:0;">展示不同课程、不同参数下的系统表现</h3>
+
+  <h4>自定义参数示例</h4>
+  <pre><span class="cmd">python demo.py --course</span> Java <span class="cmd">--hours</span> 2 <span class="cmd">--days</span> 20</pre>
+
+  <h4>展示能力</h4>
+  <div class="check-grid">
+    <div class="check-item">✅ 灵活课程选择 (10 门)</div>
+    <div class="check-item">✅ 参数动态调整</div>
+    <div class="check-item">✅ 不同难度课程差异化处理</div>
+    <div class="check-item">✅ 用户已有知识注入</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>更多演示变化</h3>
+  <table>
+    <tr><th>命令</th><th>场景</th><th>展示内容</th></tr>
+    <tr>
+      <td><code>python demo.py --course Linux --hours 1 --days 5</code></td>
+      <td>短周期学习</td>
+      <td>时间不足 → 3 种调整方案</td>
+    </tr>
+    <tr>
+      <td><code>python demo.py --course Flink --hours 3 --days 30</code></td>
+      <td>高级课程</td>
+      <td>正常规划 + 多先修课</td>
+    </tr>
+    <tr>
+      <td><code>python demo.py --course SQL --hours 4 --days 7</code></td>
+      <td>高强度学习</td>
+      <td>紧凑型每日计划</td>
+    </tr>
+  </table>
+
+  <h4>10 门可用课程</h4>
+  <div class="check-grid">
+    <div class="check-item">🐍 Python (初级, 24h)</div>
+    <div class="check-item">🗄️ SQL (初级, 18h)</div>
+    <div class="check-item">🐧 Linux (初级, 16h)</div>
+    <div class="check-item">🔀 Git (初级, 12h)</div>
+    <div class="check-item">☕ Java (中级, 32h)</div>
+    <div class="check-item">🐘 Hadoop (中级, 24h)</div>
+    <div class="check-item">🏗️ Hive (中级, 20h)</div>
+    <div class="check-item">⚡ Spark (高级, 36h)</div>
+    <div class="check-item">📨 Kafka (高级, 24h)</div>
+    <div class="check-item">🌊 Flink (高级, 36h)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 7. 系统架构 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="arch">🏗️ 系统架构</h2>
+
+<div class="card">
+  <h3>分层架构</h3>
+  <div class="arch-row">
+    <div class="arch-block" style="border-color:#5c9eff55;">
+      <h4 style="color:var(--accent);">🎯 demo.py</h4>
+      <div class="sub">答辩入口</div>
+    </div>
+  </div>
+  <div style="text-align:center;color:var(--muted);">↓</div>
+  <div class="arch-row">
+    <div class="arch-block" style="border-color:#3fb95055;">
+      <h4 style="color:var(--pass);">AgentRunner</h4>
+      <div class="sub">组件编排层</div>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-block" style="border-color:#f0883e55;">
+      <h4 style="color:var(--orange);">RuleBasedReActAgent</h4>
+      <div class="sub">ReAct 状态机</div>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-block" style="border-color:#a371f755;">
+      <h4 style="color:var(--purple);">ToolRegistry</h4>
+      <div class="sub">Tool 注册中心</div>
+    </div>
+  </div>
+  <div style="text-align:center;color:var(--muted);">↓</div>
+  <div class="arch-row">
+    <div class="arch-block" style="border-color:#5c9eff55;">
+      <h4 style="color:var(--accent);">get_course_info</h4>
+      <div class="sub">课程查询</div>
+    </div>
+    <div class="arch-block" style="border-color:#3fb95055;">
+      <h4 style="color:var(--pass);">get_prerequisite</h4>
+      <div class="sub">DAG 先修树</div>
+    </div>
+    <div class="arch-block" style="border-color:#f0883e55;">
+      <h4 style="color:var(--orange);">calculate_learning_time</h4>
+      <div class="sub">可行性评估</div>
+    </div>
+    <div class="arch-block" style="border-color:#a371f755;">
+      <h4 style="color:var(--purple);">generate_learning_plan</h4>
+      <div class="sub">计划编排</div>
+    </div>
+  </div>
+  <div style="text-align:center;color:var(--muted);">↓</div>
+  <div class="arch-row">
+    <div class="arch-block">
+      <h4>data/courses.json</h4>
+      <div class="sub">10 门课程</div>
+    </div>
+    <div class="arch-block">
+      <h4>Pydantic Models</h4>
+      <div class="sub">数据验证</div>
+    </div>
+    <div class="arch-block">
+      <h4>Scheduler</h4>
+      <div class="sub">每日调度</div>
+    </div>
+    <div class="arch-block">
+      <h4>ResourceProvider</h4>
+      <div class="sub">资源推荐</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>ReAct 状态机详解</h3>
+  <table>
+    <tr><th>状态</th><th>说明</th><th>产生内容</th></tr>
+    <tr>
+      <td><span class="badge badge-info">THINKING</span></td>
+      <td>Agent 推理当前步骤的目标</td>
+      <td>thought 文本 (如: "查询'Python'课程信息，获取学时和先修要求。")</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="background:#2e1a0f;color:var(--orange);border:1px solid #5a3d2d;">TOOL_EXECUTION</span></td>
+      <td>选择并调用 Tool</td>
+      <td>selected_tool + tool_input (params)</td>
+    </tr>
+    <tr>
+      <td><span class="badge" style="background:#1a1428;color:var(--purple);border:1px solid #3d2d5a;">OBSERVATION</span></td>
+      <td>观察 Tool 返回结果</td>
+      <td>tool_output 摘要 (关键决策字段)</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-pass">RESPONSE</span></td>
+      <td>返回最终结果</td>
+      <td>成功: plan_id + data | 失败: error code + details</td>
+    </tr>
+  </table>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h3>关键设计决策</h3>
+    <table>
+      <tr><th>设计问题</th><th>MVP 决策</th><th>理由</th></tr>
+      <tr><td>Agent 推理</td><td>规则化 FSM</td><td>离线稳定，可预测</td></tr>
+      <tr><td>Tool 调度</td><td>Registry Pattern</td><td>O(1) 查找，无 if/elif</td></tr>
+      <tr><td>先修展开</td><td>DFS 递归 + visited</td><td>自然表达 DAG</td></tr>
+      <tr><td>数据验证</td><td>Pydantic v2</td><td>编译时 + 运行时</td></tr>
+      <tr><td>错误模型</td><td>7 种业务异常</td><td>精确错误码</td></tr>
+      <tr><td>LLM 扩展</td><td>子类覆写 4 方法</td><td>开闭原则</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>与传统方案对比</h3>
+    <table>
+      <tr><th>维度</th><th>if/elif Agent</th><th>本系统</th></tr>
+      <tr><td>Tool 注册</td><td class="cmp-no">硬编码分支</td><td class="cmp-yes">Registry 动态注册</td></tr>
+      <tr><td>新增 Tool</td><td class="cmp-no">修改主逻辑</td><td class="cmp-yes">register() 一行</td></tr>
+      <tr><td>决策可追踪</td><td class="cmp-no">❌</td><td class="cmp-yes">13 步 Trace</td></tr>
+      <tr><td>阻断控制</td><td class="cmp-no">手动 if</td><td class="cmp-yes">声明式 blocker_check</td></tr>
+      <tr><td>LLM 扩展</td><td class="cmp-no">重写</td><td class="cmp-yes">覆写 4 方法</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 8. 答辩脚本 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2 id="script">🎤 答辩演示脚本</h2>
+
+<div class="card">
+  <h3>推荐演示顺序 (~5 分钟)</h3>
+
+  <table>
+    <tr><th>时间</th><th>步骤</th><th>命令</th><th>讲解要点</th></tr>
+    <tr>
+      <td>0:00</td>
+      <td><strong>开场</strong></td>
+      <td>—</td>
+      <td>
+        "本项目实现了一个基于 ReAct + Tool Calling 的智能课程学习规划 Agent。<br>
+        核心创新：用规则化状态机实现 ReAct 范式，无需 LLM 即可完成规划任务。"
+      </td>
+    </tr>
+    <tr>
+      <td>0:30</td>
+      <td><strong>Demo 1</strong></td>
+      <td><code>python demo.py</code></td>
+      <td>
+        "首先看正常流程。Agent 按 4 步依次执行：查询课程 → 检查先修 → 评估时间 → 生成计划。<br>
+        注意 Trace 输出：每一步都有 THINKING → TOOL → OBSERVATION 完整记录。"
+      </td>
+    </tr>
+    <tr>
+      <td>1:30</td>
+      <td><strong>Demo 2</strong></td>
+      <td><code>python demo.py --prereq</code></td>
+      <td>
+        "再看边界处理。Spark 课程有 4 门先修课形成 DAG 依赖图。<br>
+        Agent 在第 2 步检测到先修不满足后<strong>立即终止</strong>，不会浪费后续调用。<br>
+        这是 Agent 智能决策的体现。"
+      </td>
+    </tr>
+    <tr>
+      <td>2:30</td>
+      <td><strong>Demo 3</strong></td>
+      <td><code>python demo.py --course Java --hours 2 --days 20</code></td>
+      <td>
+        "系统支持 10 门课程、灵活参数配置。不同课程有独立的先修关系图。"
+      </td>
+    </tr>
+    <tr>
+      <td>3:00</td>
+      <td><strong>测试</strong></td>
+      <td><code>pytest tests/ -v</code></td>
+      <td>
+        "162 个单元测试，0.3 秒全部通过。覆盖 Agent 集成、Tool 功能、数据模型、异常处理。"
+      </td>
+    </tr>
+    <tr>
+      <td>3:30</td>
+      <td><strong>架构</strong></td>
+      <td>展示架构图</td>
+      <td>
+        "分层架构：AgentRunner 编排 → ReActAgent 状态机 → ToolRegistry 调度 → 4 个 Tool 执行。<br>
+        LLM 扩展：只需覆写 4 个方法即可接入 GPT/DeepSeek。"
+      </td>
+    </tr>
+    <tr>
+      <td>4:30</td>
+      <td><strong>总结</strong></td>
+      <td>—</td>
+      <td>
+        "总结三个亮点：① 规则化 ReAct，离线可用；② Tool Registry 解耦，易扩展；<br>
+        ③ DAG 先修树递归 + 阻断机制，体现 Agent 智能决策。谢谢！"
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>常见导师提问 & 应答参考</h3>
+
+  <details>
+    <summary>Q1: 既然是规则化的，和传统 if/else 有什么本质区别？</summary>
+    <div style="padding:0.6rem 1rem;">
+      <p><strong>应答：</strong>本质区别有四点：</p>
+      <ol>
+        <li><strong>Tool Registry 解耦</strong> — 传统方式用 if/elif 硬编码 Tool 调用。我们使用 Registry Pattern，新增 Tool 只需 <code>registry.register(entry)</code> 一行代码，无需修改主逻辑。</li>
+        <li><strong>声明式执行计划</strong> — EXECUTION_PLAN 是数据而非代码，blocker_check 是声明式的阻断条件，不是散落在各处的 if 判断。</li>
+        <li><strong>完整 Trace</strong> — 每一步的 THINKING → TOOL → OBSERVATION → RESPONSE 都被记录，传统 if/else 做不到这种粒度的可观测性。</li>
+        <li><strong>LLM 就绪</strong> — 只需覆写 _reason / _select_tool / _build_params / _check_blocker 4 个方法即可接入 LLM，架构设计遵循开闭原则。</li>
+      </ol>
+    </div>
+  </details>
+
+  <details>
+    <summary>Q2: 为什么不用 LangChain？</summary>
+    <div style="padding:0.6rem 1rem;">
+      <p><strong>应答：</strong>LangChain 封装层次过多，debug 困难。我们的 Agent 核心代码仅 ~480 行（react_loop.py），完全自主实现 ReAct 范式。对于本科项目，这更能体现对核心原理的理解，而非调用第三方框架。同时，我们设计了与 LangChain 兼容的 Tool 接口（通过 tool_adapter.py），保留了集成能力。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Q3: LLM 模式下效果如何？</summary>
+    <div style="padding:0.6rem 1rem;">
+      <p><strong>应答：</strong>LLMReActAgent 是 RuleBasedReActAgent 的子类，覆写了 4 个关键方法，通过 DeepSeek API 动态推理。启动方式：<code>python demo.py --llm</code>（需设置 DEEPSEEK_API_KEY）。离线模式保证答辩稳定性，LLM 模式展示扩展能力。二者共享同一套 Tool Registry 和接口协议。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Q4: 先修冲突检测如何处理循环依赖？</summary>
+    <div style="padding:0.6rem 1rem;">
+      <p><strong>应答：</strong>使用 visited 集合在 DFS 递归过程中跟踪已访问节点。如果再次遇到已访问节点，直接跳过（共享依赖场景）而非报错。最大递归深度设为 5 层，超过则抛出 MaxRecursionDepthError。同时 courses.json 的先修图通过测试验证无循环（test_prerequisite_graph_consistency）。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Q5: 系统有什么局限性？</summary>
+    <div style="padding:0.6rem 1rem;">
+      <p><strong>应答：</strong>三个主要局限：① 课程数据目前是静态 JSON（10门），未来可接入真实课程API；② 规则化Agent的推理路径固定，复杂场景需LLM模式；③ 缺少用户交互界面，目前仅命令行。这些都在未来工作计划中。</p>
+    </div>
+  </details>
+</div>
+
+<div class="card">
+  <h3>演示前检查清单</h3>
+  <div class="check-grid">
+    <div class="check-item">✅ <code>python demo.py</code> 正常运行</div>
+    <div class="check-item">✅ <code>pytest tests/ -v</code> 全部通过</div>
+    <div class="check-item">✅ 终端字体支持中文 / emoji</div>
+    <div class="check-item">✅ 终端窗口 ≥ 80 列 (避免折行)</div>
+    <div class="check-item">✅ 网络断开也不影响离线 Demo</div>
+    <div class="check-item">✅ 提前打开架构图在第二屏幕</div>
+    <div class="check-item">✅ IDE 或编辑器打开项目结构</div>
+    <div class="check-item">✅ 备用: <code>python demo.py --course SQL --hours 1 --days 5</code></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  <p>Course Learning Planner Agent · Demo 运行演示指南 · 本科答辩专用</p>
+  <p>生成时间: 2026-07-12 · 基于项目验收结果自动生成</p>
+</div>
+
+</div><!-- .container -->
+</body>
+</html>

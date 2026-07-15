@@ -1,0 +1,19 @@
+graph TD
+    GP["generate_learning_plan<br/>(Orchestrator)"] --> T1["Step 1: get_course_info<br/>调用已有Tool → Python 24h"]
+    T1 --> T2["Step 2: get_prerequisite<br/>调用已有Tool → satisfied=true"]
+    T2 --> T3["Step 3: calculate_learning_time<br/>调用已有Tool → feasible=true"]
+    T3 --> B1["Step 4: _build_learning_path<br/>Orchestrator逻辑 → 7 modules"]
+    B1 --> B2["Step 5: Scheduler.schedule<br/>贪心打包 → 10 days"]
+    B2 --> B3["Step 6: ResourceProvider<br/>Provider模式 → 9 resources"]
+
+    T1 -.- CI["get_course_info()"]
+    T2 -.- PR["get_prerequisite()"]
+    T3 -.- CT["calculate_learning_time()"]
+
+    style GP fill:#e3f2fd,stroke:#1565c0,stroke-width:3px
+    style T1 fill:#e8f5e9,stroke:#2e7d32
+    style T2 fill:#e8f5e9,stroke:#2e7d32
+    style T3 fill:#e8f5e9,stroke:#2e7d32
+    style B1 fill:#fff3e0,stroke:#e65100
+    style B2 fill:#fff3e0,stroke:#e65100
+    style B3 fill:#fff3e0,stroke:#e65100

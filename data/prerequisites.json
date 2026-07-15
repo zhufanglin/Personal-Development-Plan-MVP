@@ -1,0 +1,44 @@
+{
+  "prerequisite_map": {
+    "Python": {
+      "required": [],
+      "recommended": []
+    },
+    "SQL": {
+      "required": [],
+      "recommended": []
+    },
+    "Linux": {
+      "required": [],
+      "recommended": []
+    },
+    "Git": {
+      "required": [],
+      "recommended": []
+    },
+    "Java": {
+      "required": [],
+      "recommended": ["Python"]
+    },
+    "Hadoop": {
+      "required": ["Linux", "Java"],
+      "recommended": ["Python"]
+    },
+    "Hive": {
+      "required": ["SQL", "Hadoop"],
+      "recommended": []
+    },
+    "Spark": {
+      "required": ["Python", "Hadoop"],
+      "recommended": ["Java"]
+    },
+    "Kafka": {
+      "required": ["Java", "Linux"],
+      "recommended": ["Hadoop"]
+    },
+    "Flink": {
+      "required": ["Java", "Spark"],
+      "recommended": ["Kafka"]
+    }
+  }
+}

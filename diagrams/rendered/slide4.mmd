@@ -1,0 +1,17 @@
+flowchart LR
+    U["User:<br/>'计算 234×567'"] --> MSG["messages[0] = user"]
+    MSG --> LLM["DeepSeek<br/>+ tools schema"]
+
+    LLM -->|"tool_calls"| TC["ToolCall:<br/>{name:'calculator',<br/> args:{expression:'234*567'}}"]
+    TC --> INVOKE["registry.invoke(<br/>'calculator', ...)"]
+    INVOKE --> TOOL["calculator()<br/>→ 132678"]
+
+    TOOL --> OBS["role:'tool',<br/>content:'132678'"]
+    OBS --> LLM
+
+    LLM -->|"stop"| FINAL["Final Answer:<br/>'234 × 567 = 132678'"]
+
+    style LLM fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style TC fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style TOOL fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style FINAL fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px

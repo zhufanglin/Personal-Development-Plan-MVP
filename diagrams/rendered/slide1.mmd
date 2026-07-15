@@ -1,0 +1,17 @@
+graph TD
+    U["User / CLI"] --> AR["AgentRunner<br/>薄胶水层"]
+    AR --> RA["LLMReActAgent<br/>ReAct Loop"]
+    RA --> TR["ToolRegistry<br/>O(1) dispatch"]
+    RA --> LP["LLMProvider<br/>ABC"]
+    LP --> DS["DeepSeek API"]
+    TR --> T1["get_course_info"]
+    TR --> T2["get_prerequisite"]
+    TR --> T3["calculate_learning_time"]
+    TR --> T4["generate_learning_plan"]
+    TR --> T5["calculator"]
+    TR --> T6["get_weather"]
+
+    style AR fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style RA fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style TR fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style LP fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px

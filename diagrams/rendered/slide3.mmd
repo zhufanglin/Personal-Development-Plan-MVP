@@ -1,0 +1,33 @@
+classDiagram
+    class LLMProvider {
+        <<abstract>>
+        +model: str
+        +api_key: str
+        +chat(messages, tools)* LLMResponse
+    }
+
+    class LLMResponse {
+        +content: str
+        +tool_calls: list
+        +finish_reason: str
+        +usage: dict
+    }
+
+    class DeepSeekProvider {
+        +chat(messages, tools) LLMResponse
+        -_parse_response() LLMResponse
+    }
+
+    class ClaudeProvider {
+        +chat(messages, tools) LLMResponse
+    }
+
+    class OpenAIProvider {
+        +chat(messages, tools) LLMResponse
+    }
+
+    LLMProvider <|-- DeepSeekProvider
+    LLMProvider <|-- ClaudeProvider : future
+    LLMProvider <|-- OpenAIProvider : future
+    DeepSeekProvider ..> LLMResponse : returns
+    ClaudeProvider ..> LLMResponse : returns

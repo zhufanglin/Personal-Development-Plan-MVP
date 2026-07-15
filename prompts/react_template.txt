@@ -1,0 +1,67 @@
+ReAct Reasoning Template
+=========================
+
+Use this format for each step of the reasoning process:
+
+---
+Thought: {Describe your reasoning. What do you know so far? What do you need to find out next?}
+Action: {The tool name to call — must be one of: get_course_info, get_prerequisite, calculate_learning_time, generate_learning_plan}
+Action Input: {JSON object with tool parameters}
+---
+
+After receiving the tool result:
+
+---
+Observation: {The tool's output}
+---
+
+Then repeat with another Thought → Action → Observation cycle.
+
+When you have all necessary information for a complete answer:
+
+---
+Thought: I now have all the information needed to create the learning plan.
+Final Answer: {Structured output following the format specified in the system prompt}
+---
+
+## Example Trace
+
+User Input: course="Python", daily_hours=3, duration_days=12
+
+---
+Thought: 首先需要查询 Python 的课程信息，确认课程存在并获取学时、模块和先修要求。
+Action: get_course_info
+Action Input: {"course_name": "Python"}
+---
+
+---
+Observation: {"course_name": "Python", "estimated_total_hours": 24, "difficulty": "beginner", "prerequisites": [], "topics": [...]}
+---
+
+---
+Thought: Python 无先修要求。24h总学时。接下来检查先修条件。
+Action: get_prerequisite
+Action Input: {"course_name": "Python", "user_knowledge": []}
+---
+
+---
+Observation: {"satisfied": true, "missing": [], "total_prerequisite_hours": 0}
+---
+
+---
+Thought: 先修满足。现在评估时间可行性: 3h/天 × 12天 = 36h可用 vs 24h需要。
+Action: calculate_learning_time
+Action Input: {"course_name": "Python", "daily_hours": 3, "duration_days": 12}
+---
+
+---
+Observation: {"feasible": true, "available_hours": 36, "course_total_hours": 24, "buffer_hours": 12}
+---
+
+---
+Thought: 可行，12h缓冲。现在生成完整学习计划。
+Action: generate_learning_plan
+Action Input: {"course_name": "Python", "daily_hours": 3, "duration_days": 12, "skip_optional": false, "start_date": null}
+---
+
+... (continue until complete)

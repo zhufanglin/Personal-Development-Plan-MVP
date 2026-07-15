@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant A as Agent (FSM)
+    participant R as ToolRegistry
+    participant T as Tool
+
+    Note over A: State: THINKING
+    A->>A: thought="查询Python课程信息"
+
+    Note over A: State: TOOL_EXECUTION
+    A->>R: invoke("get_course_info", {course_name:"Python"})
+    R->>T: get_course_info("Python")
+    T-->>R: {success:true, data:{name:"Python",hours:24}}
+    R-->>A: result
+
+    Note over A: State: OBSERVATION
+    A->>A: success=true, blocker=None → continue
+
+    Note over A: State: THINKING
+    A->>A: thought="检查先修条件"
+
+    Note over A: State: TOOL_EXECUTION
+    A->>R: invoke("get_prerequisite", ...)
+    R-->>A: {satisfied:true, missing:[]}
+
+    Note over A: State: OBSERVATION → continue
+    Note over A: ... (repeat for calculate_time + generate_plan)
+
+    Note over A: State: RESPONSE
+    A->>A: ReActResult(success=true, data=plan, trace=13 steps)

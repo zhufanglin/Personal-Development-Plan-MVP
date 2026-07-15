@@ -1,0 +1,185 @@
+{
+  "courses": [
+    {
+      "id": "COURSE-PY-001",
+      "name": "Python",
+      "hours": 24,
+      "difficulty": "beginner",
+      "prerequisite": [],
+      "description": "Python 编程从零到精通。涵盖基础语法、数据结构、函数式编程、面向对象、文件操作、常用标准库及虚拟环境管理。学完可独立编写 Python 脚本和中小型项目。",
+      "category": "programming",
+      "topics": [
+        { "name": "变量与数据类型", "hours": 3, "order": 1, "required": true, "description": "数字、字符串、列表、元组、字典、集合及其常用操作" },
+        { "name": "流程控制", "hours": 3, "order": 2, "required": true, "description": "if/elif/else 条件判断、for/while 循环、列表推导式" },
+        { "name": "函数与模块", "hours": 4, "order": 3, "required": true, "description": "函数定义、参数类型、lambda 表达式、模块导入与包管理" },
+        { "name": "面向对象编程", "hours": 5, "order": 4, "required": true, "description": "类与对象、继承、多态、封装、魔术方法、属性装饰器" },
+        { "name": "文件操作与异常处理", "hours": 3, "order": 5, "required": true, "description": "文件读写、上下文管理器、try/except/finally、自定义异常" },
+        { "name": "标准库与虚拟环境", "hours": 4, "order": 6, "required": true, "description": "os、sys、datetime、json、venv、pip 包管理" },
+        { "name": "Python 进阶特性", "hours": 2, "order": 7, "required": false, "description": "迭代器、生成器、装饰器、上下文管理器进阶" }
+      ]
+    },
+    {
+      "id": "COURSE-SQL-001",
+      "name": "SQL",
+      "hours": 18,
+      "difficulty": "beginner",
+      "prerequisite": [],
+      "description": "关系型数据库查询语言系统学习。涵盖 DDL/DML、多表 JOIN、子查询、聚合函数、窗口函数、索引优化基础。学完可独立编写复杂业务查询并进行基本性能优化。",
+      "category": "database",
+      "topics": [
+        { "name": "数据库基础与 DDL", "hours": 3, "order": 1, "required": true, "description": "关系型数据库概念、CREATE/ALTER/DROP、数据类型、约束" },
+        { "name": "DML 与基本查询", "hours": 4, "order": 2, "required": true, "description": "INSERT/UPDATE/DELETE、SELECT、WHERE、ORDER BY、LIMIT、DISTINCT" },
+        { "name": "多表连接 (JOIN)", "hours": 4, "order": 3, "required": true, "description": "INNER/LEFT/RIGHT/FULL JOIN、自连接、交叉连接、UNION" },
+        { "name": "聚合与分组", "hours": 3, "order": 4, "required": true, "description": "GROUP BY、HAVING、聚合函数 (COUNT/SUM/AVG/MAX/MIN)" },
+        { "name": "子查询与 CTE", "hours": 2, "order": 5, "required": true, "description": "标量子查询、相关子查询、EXISTS/NOT EXISTS、WITH 公共表表达式" },
+        { "name": "窗口函数", "hours": 2, "order": 6, "required": false, "description": "ROW_NUMBER/RANK/DENSE_RANK、LAG/LEAD、PARTITION BY" }
+      ]
+    },
+    {
+      "id": "COURSE-LNX-001",
+      "name": "Linux",
+      "hours": 20,
+      "difficulty": "beginner",
+      "prerequisite": [],
+      "description": "Linux 操作系统从入门到熟练。涵盖文件系统、用户权限、Shell 脚本、进程管理、网络配置、常用服务部署。学完可在 Linux 环境下独立完成日常开发运维任务。",
+      "category": "operating-system",
+      "topics": [
+        { "name": "Linux 基础与文件系统", "hours": 3, "order": 1, "required": true, "description": "Linux 发行版、目录结构、文件类型、ls/cd/cp/mv/rm/find 等核心命令" },
+        { "name": "用户与权限管理", "hours": 3, "order": 2, "required": true, "description": "用户/组管理、chmod/chown/chgrp、sudo、ACL 权限" },
+        { "name": "文本处理与 Vim", "hours": 3, "order": 3, "required": true, "description": "grep/sed/awk、管道与重定向、Vim 基本操作" },
+        { "name": "Shell 脚本编程", "hours": 5, "order": 4, "required": true, "description": "变量、条件判断、循环、函数、调试、定时任务 crontab" },
+        { "name": "进程与服务管理", "hours": 3, "order": 5, "required": true, "description": "ps/top/htop、kill、systemd 服务管理、日志查看 journalctl" },
+        { "name": "网络与软件管理", "hours": 3, "order": 6, "required": false, "description": "SSH、curl/wget、iptables 基础、apt/yum 包管理" }
+      ]
+    },
+    {
+      "id": "COURSE-GIT-001",
+      "name": "Git",
+      "hours": 12,
+      "difficulty": "beginner",
+      "prerequisite": [],
+      "description": "Git 版本控制从基础到团队协作。涵盖本地仓库管理、分支策略、远程协作、冲突解决、Git Flow 工作流。学完可胜任团队开发中的版本控制工作。",
+      "category": "tooling",
+      "topics": [
+        { "name": "Git 基础概念", "hours": 2, "order": 1, "required": true, "description": "版本控制概念、Git 安装配置、工作区/暂存区/仓库、init/clone" },
+        { "name": "提交与历史管理", "hours": 3, "order": 2, "required": true, "description": "add/commit/log/diff、撤销操作 (reset/revert/checkout)、.gitignore" },
+        { "name": "分支与合并", "hours": 3, "order": 3, "required": true, "description": "branch/checkout/merge、冲突解决、rebase vs merge、cherry-pick" },
+        { "name": "远程协作", "hours": 2, "order": 4, "required": true, "description": "remote/push/pull/fetch、Pull Request 流程、代码审查" },
+        { "name": "Git Flow 工作流", "hours": 2, "order": 5, "required": false, "description": "Git Flow/GitHub Flow/Trunk-Based、tag 与 release 管理" }
+      ]
+    },
+    {
+      "id": "COURSE-JAVA-001",
+      "name": "Java",
+      "hours": 32,
+      "difficulty": "intermediate",
+      "prerequisite": [],
+      "description": "Java 企业级开发系统学习。涵盖面向对象设计、集合框架、多线程并发、JVM 原理、JDBC 数据库编程、Maven 构建工具。学完可进行 Java 后端开发和大数据平台开发。（建议先修 Python 以更快上手）",
+      "category": "programming",
+      "topics": [
+        { "name": "Java 基础语法", "hours": 3, "order": 1, "required": true, "description": "JDK 安装、基本类型、数组、字符串、流程控制、方法与重载" },
+        { "name": "面向对象深度", "hours": 5, "order": 2, "required": true, "description": "类与对象、封装继承多态、抽象类与接口、内部类、枚举" },
+        { "name": "集合框架", "hours": 4, "order": 3, "required": true, "description": "List/Set/Map 体系、ArrayList vs LinkedList、HashMap 原理、Collections 工具类" },
+        { "name": "异常与泛型", "hours": 3, "order": 4, "required": true, "description": "异常体系、try-with-resources、泛型类/方法、类型擦除、通配符" },
+        { "name": "IO 与 NIO", "hours": 3, "order": 5, "required": true, "description": "字节流/字符流、缓冲流、对象序列化、NIO Buffer/Channel" },
+        { "name": "多线程与并发", "hours": 6, "order": 6, "required": true, "description": "Thread/Runnable、synchronized、Lock、线程池、ConcurrentHashMap、原子类" },
+        { "name": "JVM 原理基础", "hours": 3, "order": 7, "required": true, "description": "内存模型、类加载机制、GC 算法、常用 JVM 参数调优" },
+        { "name": "JDBC 与 Maven", "hours": 3, "order": 8, "required": true, "description": "JDBC 连接池、PreparedStatement、事务管理、Maven 依赖与构建" },
+        { "name": "Java 8+ 新特性", "hours": 2, "order": 9, "required": false, "description": "Lambda、Stream API、Optional、新的日期时间 API" }
+      ]
+    },
+    {
+      "id": "COURSE-HDP-001",
+      "name": "Hadoop",
+      "hours": 36,
+      "difficulty": "advanced",
+      "prerequisite": ["Linux", "Java"],
+      "description": "Hadoop 大数据平台核心组件详解。涵盖 HDFS 分布式存储、MapReduce 编程模型、YARN 资源调度、Hadoop 集群搭建与调优。学完可搭建和管理 Hadoop 集群并进行数据处理开发。",
+      "category": "big-data",
+      "topics": [
+        { "name": "大数据与 Hadoop 生态概述", "hours": 3, "order": 1, "required": true, "description": "大数据 4V 特征、Hadoop 发展史、核心组件 (HDFS/YARN/MapReduce) 架构" },
+        { "name": "HDFS 分布式文件系统", "hours": 5, "order": 2, "required": true, "description": "NameNode/DataNode 架构、副本机制、读写流程、NameNode HA、联邦机制" },
+        { "name": "MapReduce 编程模型", "hours": 7, "order": 3, "required": true, "description": "Map/Reduce/Shuffle 原理、WordCount、Partitioner、Combiner、InputFormat/OutputFormat" },
+        { "name": "MapReduce 高级特性", "hours": 4, "order": 4, "required": true, "description": "二次排序、分布式缓存、计数器、Join 策略 (Map Join/Reduce Join)" },
+        { "name": "YARN 资源调度", "hours": 4, "order": 5, "required": true, "description": "ResourceManager/NodeManager、调度器 (FIFO/Capacity/Fair)、资源隔离" },
+        { "name": "Hadoop 集群运维", "hours": 5, "order": 6, "required": true, "description": "集群规划与部署、配置文件详解、性能调优、监控与故障排查" },
+        { "name": "Hadoop 周边工具", "hours": 4, "order": 7, "required": true, "description": "Sqoop 数据导入导出、Flume 日志采集、Oozie 工作流调度" },
+        { "name": "Hadoop 3.x 新特性", "hours": 4, "order": 8, "required": false, "description": "Erasure Coding、YARN Timeline Service v2、GPU 支持、多 NameNode" }
+      ]
+    },
+    {
+      "id": "COURSE-HIVE-001",
+      "name": "Hive",
+      "hours": 20,
+      "difficulty": "intermediate",
+      "prerequisite": ["SQL", "Hadoop"],
+      "description": "Hive 数据仓库从入门到优化。涵盖 HiveQL、表类型与存储格式、分区与分桶、自定义函数 (UDF)、查询优化与调优。学完可构建高效的数据仓库并进行大规模数据分析。",
+      "category": "big-data",
+      "topics": [
+        { "name": "Hive 架构与安装", "hours": 2, "order": 1, "required": true, "description": "Hive 架构 (Metastore/Driver/Executor)、与 Hadoop 关系、安装与配置" },
+        { "name": "HiveQL 基础", "hours": 4, "order": 2, "required": true, "description": "DDL 建表、DML 数据加载、SELECT 查询、与标准 SQL 的差异" },
+        { "name": "表类型与存储格式", "hours": 4, "order": 3, "required": true, "description": "内部表 vs 外部表、ORC/Parquet/Avro 格式、压缩算法 (Snappy/Zlib)" },
+        { "name": "分区与分桶", "hours": 3, "order": 4, "required": true, "description": "静态分区/动态分区、分桶表设计、分区修剪优化" },
+        { "name": "自定义函数 (UDF)", "hours": 3, "order": 5, "required": false, "description": "UDF/UDAF/UDTF 开发、GenericUDF、函数注册与使用" },
+        { "name": "查询优化与调优", "hours": 4, "order": 6, "required": true, "description": "执行计划分析 (EXPLAIN)、Join 优化 (Map Join/Skew Join)、数据倾斜处理、CBO 优化器" }
+      ]
+    },
+    {
+      "id": "COURSE-SPK-001",
+      "name": "Spark",
+      "hours": 40,
+      "difficulty": "advanced",
+      "prerequisite": ["Python", "Hadoop"],
+      "description": "Apache Spark 大数据计算引擎深入学习。涵盖 RDD/DataFrame/DataSet API、Spark SQL、Structured Streaming、MLlib 机器学习、Spark 性能调优。学完可在生产环境中开发和优化 Spark 应用。",
+      "category": "big-data",
+      "topics": [
+        { "name": "Spark 基础与架构", "hours": 4, "order": 1, "required": true, "description": "Spark 生态、Driver/Executor 架构、SparkSession/SparkContext、部署模式" },
+        { "name": "RDD 编程模型", "hours": 6, "order": 2, "required": true, "description": "RDD 创建、Transformation/Action、持久化 (cache/persist)、分区与 Shuffle" },
+        { "name": "DataFrame 与 DataSet API", "hours": 6, "order": 3, "required": true, "description": "DataFrame 创建与操作、DataSet 类型安全、Catalyst 优化器、Tungsten 执行引擎" },
+        { "name": "Spark SQL", "hours": 5, "order": 4, "required": true, "description": "SparkSession SQL、临时视图/全局视图、Hive 集成、UDF/UDAF 注册" },
+        { "name": "Structured Streaming", "hours": 6, "order": 5, "required": true, "description": "流处理概念、Input Source (Kafka/File)、窗口操作、Watermark、输出模式" },
+        { "name": "Spark MLlib", "hours": 4, "order": 6, "required": false, "description": "特征工程 (VectorAssembler/OneHotEncoder)、Pipeline、常用算法调用" },
+        { "name": "Spark 性能调优", "hours": 6, "order": 7, "required": true, "description": "内存管理、并行度设置、数据倾斜处理、广播变量、Shuffle 优化、Speculation" },
+        { "name": "Spark 3.x 新特性", "hours": 3, "order": 8, "required": false, "description": "Adaptive Query Execution、Dynamic Partition Pruning、Kubernetes 集成" }
+      ]
+    },
+    {
+      "id": "COURSE-KFK-001",
+      "name": "Kafka",
+      "hours": 28,
+      "difficulty": "advanced",
+      "prerequisite": ["Java", "Linux"],
+      "description": "Apache Kafka 分布式消息系统原理与实践。涵盖消息队列模型、Producer/Consumer 开发、Topic 与分区管理、Kafka Streams 流处理、集群运维与监控。学完可构建高吞吐的消息管道和实时数据平台。",
+      "category": "big-data",
+      "topics": [
+        { "name": "消息队列与 Kafka 架构", "hours": 3, "order": 1, "required": true, "description": "消息队列模型、Kafka 核心组件 (Broker/Zookeeper/Controller)、Topic/Partition/Offset" },
+        { "name": "Producer 开发", "hours": 4, "order": 2, "required": true, "description": "Producer API、序列化器、分区策略、acks 与幂等性、批量发送与压缩" },
+        { "name": "Consumer 开发", "hours": 4, "order": 3, "required": true, "description": "Consumer API、Consumer Group 与 Rebalance、Offset 管理 (自动/手动)、再均衡监听器" },
+        { "name": "Topic 与分区管理", "hours": 4, "order": 4, "required": true, "description": "分区分配策略、副本机制、ISR 与 Leader 选举、日志清理策略、分区重分配" },
+        { "name": "Kafka Streams", "hours": 5, "order": 5, "required": true, "description": "Streams DSL、KStream/KTable、状态存储、窗口操作、Exactly-Once 语义" },
+        { "name": "Kafka Connect", "hours": 2, "order": 6, "required": false, "description": "Source/Sink Connector、常用连接器 (JDBC/File/HDFS)、Transform" },
+        { "name": "集群运维与监控", "hours": 4, "order": 7, "required": true, "description": "集群规划、性能调优、JMX 监控、Kafka Eagle/CMAK、常见故障处理" },
+        { "name": "Kafka 3.x 新特性", "hours": 2, "order": 8, "required": false, "description": "KRaft 模式 (去 Zookeeper)、分层存储、弹性伸缩" }
+      ]
+    },
+    {
+      "id": "COURSE-FLK-001",
+      "name": "Flink",
+      "hours": 36,
+      "difficulty": "advanced",
+      "prerequisite": ["Java", "Spark"],
+      "description": "Apache Flink 实时流计算引擎从入门到生产实践。涵盖 DataStream API、状态管理与 Checkpoint、Table API & SQL、Flink CDC、CEP 复杂事件处理。学完可构建端到端的实时数据计算平台。",
+      "category": "big-data",
+      "topics": [
+        { "name": "Flink 架构与核心概念", "hours": 4, "order": 1, "required": true, "description": "流处理 vs 批处理、JobManager/TaskManager、Task Slot、并行度、部署模式" },
+        { "name": "DataStream API 基础", "hours": 5, "order": 2, "required": true, "description": "ExecutionEnvironment、Source/Sink/Transform、KeyBy/Reduce/Aggregate、RichFunction" },
+        { "name": "窗口计算", "hours": 4, "order": 3, "required": true, "description": "时间语义 (Event/Processing/Ingestion)、滚动/滑动/会话窗口、Watermark 与延迟处理" },
+        { "name": "状态管理与 Checkpoint", "hours": 6, "order": 4, "required": true, "description": "KeyedState/OperatorState、State Backend (RocksDB)、Checkpoint 原理与配置、Savepoint 与恢复" },
+        { "name": "Table API & SQL", "hours": 5, "order": 5, "required": true, "description": "TableEnvironment、SQL DDL/DML、流表对偶、时态表 Join、窗口 TVF" },
+        { "name": "Flink CDC", "hours": 3, "order": 6, "required": true, "description": "CDC 原理、MySQL CDC Connector、全量+增量同步、DataStream 与 SQL 集成" },
+        { "name": "CEP 复杂事件处理", "hours": 3, "order": 7, "required": false, "description": "Pattern API、模式序列、超时处理、事件序列匹配" },
+        { "name": "生产实践与调优", "hours": 6, "order": 8, "required": true, "description": "反压机制与处理、资源调优、Checkpoint 优化、Data Skew 处理、Exactly-Once 端到端一致性 (Kafka→Flink→Kafka)" }
+      ]
+    }
+  ]
+}

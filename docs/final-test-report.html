@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目最终验收报告 — Course Learning Planner Agent</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --pass: #3fb950;
+    --fail: #f85149;
+    --accent: #58a6ff;
+    --warn: #d2991d;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6; padding: 2rem;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; color: #f0f6fc; }
+  h2 { font-size: 1.35rem; margin: 2rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); color: #f0f6fc; }
+  h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; color: #e6edf3; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .meta span { margin-right: 1.5rem; }
+
+  /* Status badges */
+  .badge {
+    display: inline-block; padding: 0.15em 0.7em; border-radius: 2em;
+    font-weight: 600; font-size: 0.85rem;
+  }
+  .badge-pass { background: #1a3a1f; color: var(--pass); border: 1px solid #2d5a32; }
+  .badge-fail { background: #3a1a1a; color: var(--fail); border: 1px solid #5a2d2d; }
+
+  /* Cards */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .card-header h3 { margin: 0; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+  th, td { padding: 0.6rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+
+  /* KPI row */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem; text-align: center;
+  }
+  .kpi-value { font-size: 2.2rem; font-weight: 700; color: #f0f6fc; }
+  .kpi-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi.pass .kpi-value { color: var(--pass); }
+  .kpi.fail .kpi-value { color: var(--fail); }
+
+  /* Check grid */
+  .check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.5rem; }
+  .check-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.75rem; background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    font-size: 0.9rem;
+  }
+  .check-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* Code / Pre */
+  pre {
+    background: #0d1117; border: 1px solid var(--border); border-radius: 6px;
+    padding: 1rem; overflow-x: auto; font-size: 0.85rem; line-height: 1.5;
+  }
+  code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace; }
+  .cmd { color: var(--accent); }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 0.5rem 0;
+  }
+  .progress-fill { height: 100%; background: var(--pass); border-radius: 4px; transition: width 0.6s; }
+
+  /* Summary banner */
+  .banner {
+    border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .banner.pass { background: linear-gradient(135deg, #1a3a1f 0%, #0d3320 100%); border: 1px solid #2d5a32; }
+  .banner.fail { background: linear-gradient(135deg, #3a1a1a 0%, #330d0d 100%); border: 1px solid #5a2d2d; }
+  .banner-icon { font-size: 2.8rem; flex-shrink: 0; }
+  .banner-text h2 { margin: 0 0 0.3rem; border: none; padding: 0; }
+  .banner-text p { color: var(--muted); margin: 0; }
+
+  .footer { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  .demo-flow { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin: 0.75rem 0; font-size: 0.85rem; }
+  .demo-step {
+    background: #1a2332; border: 1px solid #2d4a6a; border-radius: 6px;
+    padding: 0.4rem 0.75rem; white-space: nowrap;
+  }
+  .demo-arrow { color: var(--muted); font-weight: bold; }
+
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📋 项目最终验收报告</h1>
+<div class="meta">
+  <span>📦 Course Learning Planner Agent</span>
+  <span>📅 2026-07-12</span>
+  <span>🔧 自动化验收系统</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PASS BANNER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="banner pass">
+  <div class="banner-icon">✅</div>
+  <div class="banner-text">
+    <h2 style="color:#3fb950;">项目验收通过</h2>
+    <p>所有检查项全部通过 — 可以进行答辩 Demo 演示</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- KPI OVERVIEW -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="kpi-grid">
+  <div class="kpi pass">
+    <div class="kpi-value">162</div>
+    <div class="kpi-label">测试全部通过</div>
+  </div>
+  <div class="kpi pass">
+    <div class="kpi-value">3</div>
+    <div class="kpi-label">Demo 场景覆盖</div>
+  </div>
+  <div class="kpi pass">
+    <div class="kpi-value">23</div>
+    <div class="kpi-label">模块零错误导入</div>
+  </div>
+  <div class="kpi pass">
+    <div class="kpi-value">0</div>
+    <div class="kpi-label">失败 / 警告</div>
+  </div>
+  <div class="kpi pass">
+    <div class="kpi-value">0.31s</div>
+    <div class="kpi-label">测试耗时</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 1. DEMO -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Demo 运行结果 <span class="badge badge-pass">PASS</span></h2>
+
+<div class="card">
+  <div class="card-header">
+    <h3>🖥️ 基础离线 Demo</h3>
+    <span class="badge badge-pass">✅ 成功</span>
+  </div>
+  <pre><span class="cmd">$ python demo.py</span></pre>
+
+  <table>
+    <tr><th>指标</th><th>值</th></tr>
+    <tr><td>课程</td><td>Python</td></tr>
+    <tr><td>模块数</td><td>7 (必修 6 + 可选 1)</td></tr>
+    <tr><td>计划天数</td><td>10 (学习 8 + 复习 1 + 评估 1)</td></tr>
+    <tr><td>学习资源</td><td>9 条</td></tr>
+    <tr><td>ReAct Trace</td><td>13 步</td></tr>
+  </table>
+
+  <h3>ReAct 执行链路</h3>
+  <div class="demo-flow">
+    <span class="demo-step">🎯 THINKING</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">🔧 get_course_info</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">👁️ OBSERVATION</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">🔧 get_prerequisite</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">👁️ OBSERVATION</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">🔧 calculate_learning_time</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">👁️ OBSERVATION</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">🔧 generate_learning_plan</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">👁️ OBSERVATION</span>
+    <span class="demo-arrow">→</span>
+    <span class="demo-step">✅ RESPONSE</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>🔬 附加 Demo</h3>
+  </div>
+  <table>
+    <tr><th>命令</th><th>场景</th><th>结果</th></tr>
+    <tr><td><code>python demo.py --prereq</code></td><td>先修冲突检测 (Spark)</td><td><span class="badge badge-pass">PASS</span> — 正确检测 4 门缺失先修课，第2步终止</td></tr>
+    <tr><td><code>python demo.py --course Java --hours 2 --days 20</code></td><td>自定义课程参数</td><td><span class="badge badge-pass">PASS</span> — 生成 9 模块 20 天计划</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>🔌 离线模式验证</h3></div>
+  <div class="check-grid">
+    <div class="check-item"><span class="check-icon">✅</span> 不依赖外部 API</div>
+    <div class="check-item"><span class="check-icon">✅</span> 无需 DeepSeek API Key</div>
+    <div class="check-item"><span class="check-icon">✅</span> 无需 OpenAI API Key</div>
+    <div class="check-item"><span class="check-icon">✅</span> 无需网络连接</div>
+    <div class="check-item"><span class="check-icon">✅</span> RuleBasedReActAgent 纯本地规则引擎</div>
+    <div class="check-item"><span class="check-icon">✅</span> LLM 模式有 <code>--llm</code> 显式守卫</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 2. TESTS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>2. 单元测试结果 <span class="badge badge-pass">PASS</span></h2>
+
+<div class="card">
+  <div class="card-header">
+    <h3>📊 测试统计</h3>
+    <span class="badge badge-pass">162/162</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi pass">
+      <div class="kpi-value">162</div>
+      <div class="kpi-label">Total</div>
+    </div>
+    <div class="kpi pass">
+      <div class="kpi-value">162</div>
+      <div class="kpi-label">Passed</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Failed</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Skipped</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Warnings</div>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" style="width:100%"></div>
+  </div>
+  <p style="text-align:center;color:var(--pass);font-weight:600;">100% 通过率</p>
+
+  <table>
+    <tr><th>测试模块</th><th>文件</th><th>测试数</th><th>状态</th></tr>
+    <tr><td>Agent 集成测试</td><td><code>tests/test_agent.py</code></td><td>42</td><td><span class="badge badge-pass">PASS</span></td></tr>
+    <tr><td>数据模型测试</td><td><code>tests/test_models.py</code></td><td>73</td><td><span class="badge badge-pass">PASS</span></td></tr>
+    <tr><td>Tool & Registry 测试</td><td><code>tests/test_tools.py</code></td><td>47</td><td><span class="badge badge-pass">PASS</span></td></tr>
+  </table>
+
+  <h3>测试覆盖维度</h3>
+  <div class="check-grid">
+    <div class="check-item"><span class="check-icon">✅</span> AgentRunner 生命周期</div>
+    <div class="check-item"><span class="check-icon">✅</span> End-to-End 成功路径</div>
+    <div class="check-item"><span class="check-icon">✅</span> 先修冲突流程</div>
+    <div class="check-item"><span class="check-icon">✅</span> 时间不足流程</div>
+    <div class="check-item"><span class="check-icon">✅</span> MockRegistry 依赖注入</div>
+    <div class="check-item"><span class="check-icon">✅</span> MockAgent 注入</div>
+    <div class="check-item"><span class="check-icon">✅</span> Trace 状态机验证</div>
+    <div class="check-item"><span class="check-icon">✅</span> Prompt 变量注入</div>
+    <div class="check-item"><span class="check-icon">✅</span> Tool Registry CRUD</div>
+    <div class="check-item"><span class="check-icon">✅</span> get_course_info 查询</div>
+    <div class="check-item"><span class="check-icon">✅</span> get_prerequisite 先修链</div>
+    <div class="check-item"><span class="check-icon">✅</span> calculate_learning_time</div>
+    <div class="check-item"><span class="check-icon">✅</span> generate_learning_plan</div>
+    <div class="check-item"><span class="check-icon">✅</span> Pydantic 数据验证</div>
+    <div class="check-item"><span class="check-icon">✅</span> 边界值 / 非法输入</div>
+    <div class="check-item"><span class="check-icon">✅</span> 7 种业务异常类</div>
+    <div class="check-item"><span class="check-icon">✅</span> courses.json 数据完整性</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 3. HEALTH -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>3. 系统健康检查</h2>
+
+<div class="card">
+  <table>
+    <tr><th>检查项</th><th>结果</th><th>详情</th></tr>
+    <tr>
+      <td>Demo 离线运行</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>无网络、无 API Key 正常运行</td>
+    </tr>
+    <tr>
+      <td>单元测试</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>162/162 全部通过，0 Warning</td>
+    </tr>
+    <tr>
+      <td>Import 检查</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>23 个模块导入无错误</td>
+    </tr>
+    <tr>
+      <td>循环依赖</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>全模块交叉导入无循环依赖</td>
+    </tr>
+    <tr>
+      <td>配置检查</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td><code>config/.env.example</code> 存在，占位符无真实 Key</td>
+    </tr>
+    <tr>
+      <td>Demo 依赖</td>
+      <td><span class="badge badge-pass">PASS</span></td>
+      <td>默认离线模式，LLM 有 <code>--llm</code> 守卫</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>📦 Import 检查明细 (23/23)</h3></div>
+  <div class="check-grid">
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent.runner</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent.react_loop</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent.tool_registry</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent.prompt_loader</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent.llm_react</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.agent.tool_adapter</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.course_info</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.prerequisites</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.feasibility</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.learning_plan</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.scheduler</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.resource_provider</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.data_loader</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.tools.demo_tools</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.providers</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.providers.base</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.providers.deepseek_provider</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.models</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.models.course</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.models.feasibility</code></div>
+    <div class="check-item"><span class="check-icon">✅</span> <code>src.models.learning_path</code></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 4. CONCLUSION -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>4. 最终结论</h2>
+
+<div class="banner pass">
+  <div class="banner-icon">🏆</div>
+  <div class="banner-text">
+    <h2 style="color:#3fb950;">项目验收通过，可以进行答辩 Demo 演示</h2>
+    <p>全部 6 项检查通过 · 162 测试 100% 通过 · 零阻塞项</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>🎯 答辩要点</h3></div>
+  <div class="check-grid">
+    <div class="check-item"><span class="check-icon">🔌</span> <strong>无需网络</strong> — 离线模式，答辩现场零风险</div>
+    <div class="check-item"><span class="check-icon">⚡</span> <strong>快速响应</strong> — 162 测试 0.31s，Demo 秒级输出</div>
+    <div class="check-item"><span class="check-icon">🎭</span> <strong>多场景</strong> — 正常规划 + 先修冲突 + 时间不足</div>
+    <div class="check-item"><span class="check-icon">🔍</span> <strong>完整 Trace</strong> — 每步 THINKING→TOOL→OBSERVE→RESPONSE 可追踪</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>📝 建议演示流程</h3></div>
+  <pre><span class="cmd"># 1. 正常规划 — 核心能力展示</span>
+python demo.py
+
+<span class="cmd"># 2. 先修冲突检测 — 边界处理能力</span>
+python demo.py --prereq
+
+<span class="cmd"># 3. 自定义参数 — 灵活性展示</span>
+python demo.py --course Java --hours 2 --days 20
+
+<span class="cmd"># 4. 运行测试 — 质量保证</span>
+pytest tests/ -v</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  <p>报告生成时间: 2026-07-12 · Claude Code Acceptance Test Suite · 自动化验收</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程学习规划 Agent（MVP）项目答辩讲稿</title>
+<style>
+  :root {
+    --navy: #1A1F3A;
+    --blue: #3B82F6;
+    --green: #10B981;
+    --purple: #8B5CF6;
+    --orange: #F59E0B;
+    --red: #EF4444;
+    --gray: #6B7280;
+    --light: #F7F8FC;
+    --white: #FFFFFF;
+    --border: #E5E7EB;
+    --text: #1F2937;
+    --code-bg: #1E1E2E;
+    --radius: 6px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    color: var(--text);
+    background: #FCFCF9;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top Bar ──────────────────────────────── */
+  .topbar {
+    background: var(--navy); color: white;
+    padding: 14px 24px; display: flex;
+    align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar h1 { font-size: 17px; font-weight: 600; }
+  .topbar .timer {
+    font-size: 22px; font-weight: 800; color: var(--green);
+    font-family: "Consolas", monospace;
+  }
+  .topbar .mode {
+    font-size: 12px; color: #94A3B8;
+    padding: 3px 12px; border: 1px solid #334155; border-radius: 20px;
+  }
+
+  /* ── Container ────────────────────────────── */
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+
+  /* ── Info Card ────────────────────────────── */
+  .info-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 24px; margin-bottom: 32px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px;
+  }
+  .info-card .item { display: flex; gap: 8px; font-size: 14px; }
+  .info-card .item .key { color: var(--gray); min-width: 80px; }
+  .info-card .item .val { font-weight: 600; }
+
+  /* ── Phase Cards ──────────────────────────── */
+  .phase { margin-bottom: 36px; }
+  .phase-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .phase-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--blue); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; flex-shrink: 0;
+  }
+  .phase-num.green  { background: var(--green); }
+  .phase-num.purple { background: var(--purple); }
+  .phase-num.orange { background: var(--orange); }
+  .phase-num.red    { background: var(--red); }
+  .phase-title { font-size: 19px; font-weight: 700; color: var(--navy); }
+  .phase-time  { font-size: 13px; color: var(--gray); margin-left: auto; }
+
+  .phase-body {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .phase-body p { margin-bottom: 8px; font-size: 15px; }
+  .phase-body p:last-child { margin-bottom: 0; }
+
+  /* ── Script Highlight ──────────────────────── */
+  .script-line {
+    background: #F0F7FF; padding: 14px 18px; margin: 8px 0;
+    border-left: 3px solid var(--blue);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 15px;
+  }
+  .script-line .cue {
+    display: block; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    color: var(--blue); text-transform: uppercase; margin-bottom: 4px;
+  }
+
+  /* ── Code inline ───────────────────────────── */
+  code {
+    background: var(--code-bg); color: #4EC9B0;
+    padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; font-family: "Consolas", "Fira Code", monospace;
+  }
+
+  /* ── Flow Diagram (CSS) ───────────────────── */
+  .flow-row {
+    display: flex; align-items: center; gap: 8px; margin: 16px 0;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .flow-box {
+    background: var(--navy); color: white; padding: 8px 16px;
+    border-radius: var(--radius); font-size: 13px; font-weight: 600;
+    text-align: center; white-space: nowrap;
+  }
+  .flow-box.blue  { background: var(--blue); }
+  .flow-box.green { background: var(--green); }
+  .flow-box.purple { background: var(--purple); }
+  .flow-box.orange { background: var(--orange); }
+  .flow-arrow { color: var(--gray); font-size: 18px; font-weight: 700; }
+
+  /* ── Tables ────────────────────────────────── */
+  .mini-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+  .mini-table th { text-align: left; padding: 8px 12px; background: var(--navy); color: white; font-weight: 600; }
+  .mini-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .mini-table tr:nth-child(even) td { background: #FAFBFC; }
+
+  /* ── Q&A ───────────────────────────────────── */
+  .qa-item { margin-bottom: 14px; }
+  .qa-item .q {
+    font-weight: 700; color: var(--red); margin-bottom: 4px; font-size: 14px;
+  }
+  .qa-item .a {
+    padding: 10px 16px; background: #FEF2F2;
+    border-radius: var(--radius); font-size: 14px; color: var(--text);
+  }
+
+  /* ── Checkboxes ────────────────────────────── */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 4px 0 4px 24px; position: relative; font-size: 14px;
+  }
+  .checklist li::before {
+    content: '☐'; position: absolute; left: 0; color: var(--gray);
+  }
+
+  /* ── Print ─────────────────────────────────── */
+  @media print {
+    body { background: white; font-size: 13px; }
+    .topbar { background: var(--navy); -webkit-print-color-adjust: exact; }
+    .container { max-width: 100%; padding: 20px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>课程学习规划 Agent（MVP）· 答辩讲稿</h1>
+  <span class="mode">5 分钟 · 学生 → 导师</span>
+  <span class="timer">05:00</span>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 项目基本信息 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="info-card">
+  <div class="item"><span class="key">项目名称</span><span class="val">课程学习规划 Agent（MVP）</span></div>
+  <div class="item"><span class="key">答辩时长</span><span class="val">5 分钟</span></div>
+  <div class="item"><span class="key">技术栈</span><span class="val">Python 3.12 · Pydantic v2 · DeepSeek API</span></div>
+  <div class="item"><span class="key">代码规模</span><span class="val">26 文件 · 3,707 行 · 162 测试 · ~90% 覆盖率</span></div>
+  <div class="item"><span class="key">核心范式</span><span class="val">ReAct（Reasoning + Acting）+ Tool Calling</span></div>
+  <div class="item"><span class="key">架构模式</span><span class="val">四层分离（Provider → Agent → Tools → Models）</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 1: 项目介绍 (0:00-0:40) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">1</span>
+    <span class="phase-title">项目介绍：为什么要做这个 Agent</span>
+    <span class="phase-time">0:00 – 0:40</span>
+  </div>
+
+  <div class="phase-body">
+    <div class="script-line">
+      <span class="cue">开场 (15秒)</span>
+      各位老师好，我今天汇报的项目是《课程学习规划 Agent（MVP）》。这是一个帮助学生规划课程学习路径的 AI Agent 系统。
+    </div>
+
+    <div class="script-line">
+      <span class="cue">问题 (25秒)</span>
+      为什么做这个？传统的学习规划有三个问题：第一，依赖人工经验——你问学长"这门课怎么学"，回答完全凭个人感觉。第二，缺少课程关系分析——很多课之间有先修关系，比如学 Spark 之前要学 Python 和 Hadoop，学 Hadoop 之前又要学 Linux 和 Java。这些关系靠人脑很难完整梳理。第三，无法根据时间动态调整——"每天只能学 2 小时、只有 30 天"这个约束下能不能学完？传统方式算不出来。
+    </div>
+
+    <div class="script-line">
+      <span class="cue">方案</span>
+      我的解决思路是：让 Agent 调用工具去查课程数据、验证先修关系、计算时间可行性，而不是凭经验猜测。Agent 不直接回答问题——它必须通过 Tool 获取信息。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 2: 系统架构 (0:40-1:40) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num green">2</span>
+    <span class="phase-title">系统架构：四层分离</span>
+    <span class="phase-time">0:40 – 1:40</span>
+  </div>
+
+  <div class="phase-body">
+    <div class="flow-row">
+      <span class="flow-box blue">Provider 层</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box green">Agent 层</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box purple">Tools 层</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box orange">Models 层</span>
+    </div>
+
+    <div class="script-line">
+      <span class="cue">架构讲解 (40秒)</span>
+      系统采用四层分离架构。最上面是 Provider 层——封装大模型 API 调用，当前接的是 DeepSeek，但抽象成了 LLMProvider 接口，以后换模型不需要改 Agent 代码。<br><br>
+      第二层是 Agent 核心层——包含三个关键组件：AgentRunner 是总入口，LLMReActAgent 负责 ReAct 推理循环（思考→调用工具→观察结果→继续推理），ToolRegistry 是工具注册中心，所有工具在这里统一管理，O(1) 字典查找调度。<br><br>
+      第三层是 Tools 层——实现了 4 个课程规划工具。最底层是 Pydantic 数据模型——10 个模型，字段名和 JSON 数据完全一致，中间不需要任何转换。<br><br>
+      关键设计原则：依赖方向严格向下，上层依赖下层，下层不依赖上层。整个项目零循环导入。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 3: Agent 流程 (1:40-2:30) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num purple">3</span>
+    <span class="phase-title">Agent 流程：ReAct 循环 + Trace 追踪</span>
+    <span class="phase-time">1:40 – 2:30</span>
+  </div>
+
+  <div class="phase-body">
+    <div class="script-line">
+      <span class="cue">ReAct 讲解 (30秒)</span>
+      Agent 的核心是 ReAct 推理循环。ReAct 是 Reasoning + Acting 的缩写。<br><br>
+      具体流程：用户输入后，Agent 先进入思考状态——"我需要查询 Python 的课程信息"。然后进入执行状态——通过 ToolRegistry 调用 <code>get_course_info</code> 工具。工具返回后进入观察状态——拿到课程数据，检查是否有阻断条件。这个过程循环 4 轮，每一步都产生一条 Trace 记录。
+    </div>
+
+    <div class="script-line">
+      <span class="cue">Trace 展示 (20秒)</span>
+      每条 Trace 包含 8 个字段：步骤序号、Agent 状态、思考内容、选择的工具、输入参数、输出摘要、时间戳、耗时。成功路径产生 13 步 Trace。如果先修条件不满足，在第 2 个工具处就会阻断——只产生 7 步 Trace，不会浪费后续调用。这就是 Agent 和 Chatbot 的本质区别：Agent 的每一步决策都是可追溯的。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 4: 工具设计 (2:30-3:10) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num orange">4</span>
+    <span class="phase-title">工具设计：ToolRegistry + Provider 抽象</span>
+    <span class="phase-time">2:30 – 3:10</span>
+  </div>
+
+  <div class="phase-body">
+    <table class="mini-table">
+      <thead><tr><th>工具</th><th>职责</th><th>输入</th><th>输出</th></tr></thead>
+      <tbody>
+        <tr><td><code>get_course_info</code></td><td>查询课程元数据</td><td>课程名称</td><td>学时/难度/模块列表</td></tr>
+        <tr><td><code>get_prerequisite</code></td><td>递归检查先修树</td><td>课程名 + 用户背景</td><td>缺失课程 + 总先修学时</td></tr>
+        <tr><td><code>calculate_learning_time</code></td><td>评估时间可行性</td><td>课程名 + 每日小时 + 天数</td><td>可行/不可行 + 3种调整方案</td></tr>
+        <tr><td><code>generate_learning_plan</code></td><td>生成完整学习计划</td><td>以上全部参数</td><td>学习路径 + 每日计划 + 资源</td></tr>
+      </tbody>
+    </table>
+
+    <div class="script-line">
+      <span class="cue">设计亮点 (20秒)</span>
+      有两个关键设计：第一，ToolRegistry 用 Python 字典实现 O(1) 调度，没有 if/elif 链。新增工具只需 <code>registry.register(ToolEntry(...))</code>，Agent 代码零改动。第二，LLMProvider 用抽象基类隔离具体模型 SDK——Agent 代码从没有 <code>import openai</code>，换模型只需要实现新的 Provider 子类。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 5: 异常处理 (3:10-3:40) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num red">5</span>
+    <span class="phase-title">异常处理：两阶段阻断 + 六层安全约束</span>
+    <span class="phase-time">3:10 – 3:40</span>
+  </div>
+
+  <div class="phase-body">
+    <div class="script-line">
+      <span class="cue">阻断流程 (30秒)</span>
+      系统有两个业务阻断点。第一个是 <code>get_prerequisite</code> 返回后——如果先修条件不满足，Agent 立即终止，输出缺失的先修课列表和预估总学时，不会再调用后续工具。第二个是 <code>calculate_learning_time</code> 返回后——如果时间不足，Agent 终止并输出三种调整方案：延长学习周期、增加每日学习时间、跳过可选模块缩减范围。<br><br>
+      举个例子：用户想学 Spark，但 Spark 需要 Python + Hadoop，Hadoop 又需要 Linux + Java——共 4 门先修课，112 小时。Agent 在第二步就检测到，立即终止，没有浪费后续调用。这就是"早停"机制。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 6: Demo 演示流程 (3:40-4:20) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num blue">6</span>
+    <span class="phase-title">Demo 演示流程</span>
+    <span class="phase-time">3:40 – 4:20</span>
+  </div>
+
+  <div class="phase-body">
+    <div class="script-line">
+      <span class="cue">Demo 1 (15秒，离线模式)</span>
+      <code>$ python demo.py --course Python --hours 3 --days 12</code><br>
+      输出：Python 24小时，7个模块（6必修+1可选），10天计划（8学习+1复习+1评估），9条学习资源，13步 Trace。
+    </div>
+
+    <div class="script-line">
+      <span class="cue">Demo 2 (15秒，先修冲突)</span>
+      <code>$ python demo.py --prereq</code><br>
+      输出：Spark 需要 Python → Hadoop → Linux + Java。4 门缺失，112 小时总先修学时。Agent 在第 2 步正确终止。
+    </div>
+
+    <div class="script-line">
+      <span class="cue">Demo 3 (10秒，LLM 模式)</span>
+      <code>$ python demo.py --llm --calculator</code><br>
+      用户输入"帮我计算 234 × 567"，Agent 通过 DeepSeek LLM 自主调用 calculator 工具，返回 132678。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PART 7: 总结 (4:20-5:00) -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num green">7</span>
+    <span class="phase-title">总结：三个核心贡献</span>
+    <span class="phase-time">4:20 – 5:00</span>
+  </div>
+
+  <div class="phase-body">
+    <div class="script-line">
+      <span class="cue">总结 (30秒)</span>
+      总结一下。这个项目做了三件事：<br><br>
+      第一，Agent 不是 Chatbot。Agent 通过 Tool Calling 获取信息，而不是依赖模型记忆。每一步都有 Trace 记录，可追溯、可审计。<br><br>
+      第二，架构是可扩展的。添加新工具、替换大模型，都只需要注册或实现接口，核心代码不动。这不是调 API 的脚本，这是一个有架构的框架。<br><br>
+      第三，工程质量有保障。162 个测试用例，~90% 覆盖率，8 种自定义异常，DAG 感知递归，多层安全约束。<br><br>
+      后续方向包括 Memory 多轮对话、RAG 智能资源检索、Multi-Agent 协作编排。当前架构已经为这些方向预留了接口。<br><br>
+      以上就是我的项目汇报，请老师提问。
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 导师可能提问及回答 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num" style="background:var(--gray);">Q</span>
+    <span class="phase-title">导师可能提问及回答</span>
+  </div>
+
+  <div class="phase-body">
+
+    <div class="qa-item">
+      <p class="q">Q1: 你这个和直接调用 DeepSeek API 有什么区别？</p>
+      <div class="a">直接调 API 是 Chatbot——它只能回答模型训练数据中的内容。我的 Agent 在回答之前必须调用 Tool 查询真实数据。比如课程 Python 的学时是 24 小时——这个数据来自 courses.json，不是模型编的。另外我的系统有 Trace 审计追踪，每一步都可以追溯。</div>
+    </div>
+
+    <div class="qa-item">
+      <p class="q">Q2: 为什么不直接用 LangChain？</p>
+      <div class="a">LangChain 封装了很多细节，用它只能证明我会调 API，不能证明我理解 Agent 的原理。我把核心 ReAct 循环自己写了——不到 200 行代码。写了之后才真正理解 Thought → Action → Observation 是怎么衔接的、阻断条件应该在哪里检查。而且不依赖框架意味着架构更轻量、调试更透明。</div>
+    </div>
+
+    <div class="qa-item">
+      <p class="q">Q3: 先修关系里的循环依赖怎么检测？</p>
+      <div class="a">先修关系是一个有向无环图（DAG），不是树。我用 visited 集合来区分两种重复：共享依赖——同一个课程被不同路径引用（比如 Java 被 Flink 和 Hadoop 同时依赖），这是正常的，直接跳过不报错。循环依赖——比如 A→B→C→A，这种情况在数据层面不应该出现，如果出现就报错。另外我加了 MAX_RECURSION_DEPTH=5 的深度限制做兜底。</div>
+    </div>
+
+    <div class="qa-item">
+      <p class="q">Q4: 如果 Tool 调用失败了怎么办？</p>
+      <div class="a">有多层保护。第一层：ToolRegistry.invoke() 内部有 try/except，工具异常被捕获为 INTERNAL_ERROR 而不是让 Agent 崩溃。第二层：如果 Tool 返回 success=false，Agent 在 Observation 阶段检测到，转换为对应的错误响应。第三层：LLM Agent 还有 MAX_TOOL_ROUNDS=10 的上限，防止死循环。Provider 层也处理了 5 种 API 异常（认证失败/速率限制/超时/API错误/未知错误）。</div>
+    </div>
+
+    <div class="qa-item">
+      <p class="q">Q5: 如果要扩展到 100 门课，需要改什么？</p>
+      <div class="a">零代码改动。只需在 courses.json 和 prerequisites.json 中添加新课程数据。数据加载、模型验证、工具查询、Agent 调度——全套链路都不需要改。如果要改数据存储方式（比如从 JSON 换成数据库），只需修改 DataLoader 的实现，上层 Tool 和 Agent 不受影响。</div>
+    </div>
+
+    <div class="qa-item">
+      <p class="q">Q6: 你觉得这个项目最大的收获是什么？</p>
+      <div class="a">最大的收获不是写了一个能跑的系统，而是理解了 Agent 架构的核心设计原则——开闭原则在 ToolRegistry 中的体现、依赖倒置在 Provider 抽象中的体现、单一职责在分层架构中的体现。这些软件工程原则以前是课本上的概念，做完这个项目之后变成了实际的设计决策。另外测试给了我重构的信心——好几次改动核心逻辑，但 162 个测试让我确信没有引入回归。</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 答辩前检查清单 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">✓</span>
+    <span class="phase-title">答辩前检查清单</span>
+  </div>
+
+  <div class="phase-body">
+    <ul class="checklist">
+      <li>确认 DeepSeek API Key 可用（<code>echo $DEEPSEEK_API_KEY</code>）</li>
+      <li>确认 <code>python demo.py</code> 离线模式正常运行</li>
+      <li>确认 <code>pytest tests/ -v</code> 全部通过</li>
+      <li>打开系统架构图（<code>docs/system-design.md</code>）备用</li>
+      <li>浏览器打开本讲稿页面（<code>docs/student-defense-5min.html</code>）</li>
+      <li>手机计时器设置 5 分钟倒计时</li>
+      <li>准备 Demo 终端窗口（提前 cd 到项目目录）</li>
+      <li>关键数字记住：26文件 / 3707行 / 162测试 / ~90%覆盖 / 13步Trace</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

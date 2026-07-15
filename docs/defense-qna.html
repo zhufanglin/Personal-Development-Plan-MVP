@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>导师答辩问题库 — 课程学习规划 Agent</title>
+<style>
+  :root {
+    --bg: #0B0E17;
+    --surface: #131724;
+    --card: #1A1E2B;
+    --border: #252A38;
+    --text: #E2E4E9;
+    --muted: #848B9C;
+    --blue: #60A5FA;
+    --cyan: #22D3EE;
+    --green: #4ADE80;
+    --purple: #A78BFA;
+    --orange: #FB923C;
+    --red: #F87171;
+    --pink: #F472B6;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ───────────────────────────────── */
+  .header {
+    background: linear-gradient(135deg, #0F142B 0%, #1A1040 50%, #0F2044 100%);
+    padding: 60px 24px 40px; text-align: center; position: relative; overflow: hidden;
+  }
+  .header::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent);
+  }
+  .header h1 { font-size:30px; font-weight:800; margin-bottom:8px; }
+  .header .gradient-text {
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .header .subtitle { font-size:15px; color:var(--muted); max-width:650px; margin:0 auto 24px; }
+  .header .project-line {
+    font-size:18px; font-weight:600; color:#94A3B8; margin-bottom:8px;
+  }
+  .header .meta-row {
+    display:flex; gap:24px; justify-content:center; flex-wrap:wrap;
+    font-size:13px; color:var(--muted);
+  }
+  .header .meta-row span { display:flex; align-items:center; gap:6px; }
+  .header .dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .dot.blue { background:var(--blue); } .dot.green { background:var(--green); }
+  .dot.purple { background:var(--purple); } .dot.orange { background:var(--orange); }
+
+  /* ── Container ────────────────────────────── */
+  .container { max-width:960px; margin:0 auto; padding:32px 24px 64px; }
+
+  /* ── Search + Filter ──────────────────────── */
+  .toolbar { display:flex; gap:12px; margin-bottom:28px; flex-wrap:wrap; align-items:center; }
+  .search-box {
+    flex:1; min-width:240px; padding:12px 18px; border-radius:24px;
+    border:1px solid var(--border); background:var(--surface); color:var(--text);
+    font-size:14px; outline:none; font-family:inherit; transition:.2s;
+  }
+  .search-box:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(96,165,250,0.1); }
+  .search-box::placeholder { color:var(--muted); }
+  .filter-tags { display:flex; gap:6px; flex-wrap:wrap; }
+  .filter-tag {
+    padding:6px 16px; border-radius:20px; border:1px solid var(--border);
+    background:transparent; color:var(--muted); font-size:12px; cursor:pointer;
+    font-family:inherit; transition:.2s; white-space:nowrap;
+  }
+  .filter-tag:hover { border-color:var(--blue); color:var(--blue); }
+  .filter-tag.active { background:var(--blue); border-color:var(--blue); color:white; }
+  .result-count { font-size:13px; color:var(--muted); white-space:nowrap; }
+
+  /* ── Category Header ──────────────────────── */
+  .cat-header {
+    font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:2px;
+    padding:32px 0 16px; display:flex; align-items:center; gap:10px;
+  }
+  .cat-header .cat-dot { width:10px; height:10px; border-radius:50%; }
+  .cat-header .cat-count { font-size:12px; color:var(--muted); font-weight:400; letter-spacing:0; margin-left:auto; }
+
+  /* ── Question Card ────────────────────────── */
+  .q-card {
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    margin-bottom:12px; overflow:hidden; transition:.2s;
+  }
+  .q-card:hover { border-color:#3A4055; }
+  .q-card.highlight { border-left:3px solid var(--purple); }
+
+  .q-card-header {
+    padding:16px 20px; display:flex; align-items:center; gap:12px;
+    cursor:pointer; user-select:none;
+  }
+  .q-card-header:hover { background:rgba(255,255,255,0.02); }
+  .q-num {
+    font-size:13px; font-weight:700; color:var(--muted); min-width:28px;
+  }
+  .q-tags { display:flex; gap:6px; flex-shrink:0; }
+  .q-tag {
+    padding:2px 10px; border-radius:12px; font-size:10px; font-weight:700;
+    letter-spacing:0.5px; text-transform:uppercase;
+  }
+  .q-tag.basic   { background:rgba(96,165,250,0.15); color:var(--blue); }
+  .q-tag.arch    { background:rgba(167,139,250,0.15); color:var(--purple); }
+  .q-tag.react   { background:rgba(34,211,238,0.15); color:var(--cyan); }
+  .q-tag.eng     { background:rgba(74,222,128,0.15); color:var(--green); }
+  .q-tag.innov   { background:rgba(251,146,60,0.15); color:var(--orange); }
+
+  .q-text { flex:1; font-size:15px; font-weight:600; }
+  .q-arrow {
+    font-size:12px; color:var(--muted); transition:.3s; flex-shrink:0;
+  }
+  .q-card.open .q-arrow { transform:rotate(180deg); }
+
+  .q-card-body { display:none; padding:0 20px 20px; }
+  .q-card.open .q-card-body { display:block; }
+
+  .q-section { margin-bottom:16px; }
+  .q-section .s-label {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+    margin-bottom:6px; display:inline-block; padding:2px 8px; border-radius:4px;
+  }
+  .s-label.intent { background:rgba(248,113,113,0.15); color:var(--red); }
+  .s-label.answer { background:rgba(74,222,128,0.15); color:var(--green); }
+  .s-label.follow { background:rgba(251,146,60,0.15); color:var(--orange); }
+
+  .q-section .s-content {
+    font-size:14px; color:var(--text); line-height:1.8;
+    padding:12px 16px; background:rgba(255,255,255,0.02); border-radius:8px;
+  }
+  .q-section .s-content code {
+    background:rgba(96,165,250,0.1); color:var(--blue); padding:1px 6px;
+    border-radius:3px; font-size:12px; font-family:Consolas,monospace;
+  }
+
+  .followup-q { margin-bottom:6px; font-size:13px; color:var(--orange); font-weight:600; }
+  .followup-a { font-size:13px; color:var(--muted); padding-left:16px; border-left:1px solid var(--border); }
+
+  /* ── Scrollbar ────────────────────────────── */
+  ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* ── Print ────────────────────────────────── */
+  @media print { body{background:white;color:#111;} .q-card{break-inside:avoid;border-color:#ddd;background:white;} }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- HEADER -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="header">
+  <p class="project-line">基于 ReAct 与 Tool Calling 的</p>
+  <h1><span class="gradient-text">课程学习规划 Agent</span> 系统设计与实现</h1>
+  <p class="subtitle">本项目基于大语言模型，通过 ReAct 推理机制、Tool Calling 和 Workflow 编排，实现具备任务分析、工具调用和学习计划生成能力的智能 Agent。</p>
+  <div class="meta-row">
+    <span><span class="dot blue"></span> 导师答辩问题库</span>
+    <span><span class="dot green"></span> 50 个问题 · 5 个分类</span>
+    <span><span class="dot purple"></span> 含意图分析 + 推荐回答 + 追问</span>
+    <span><span class="dot orange"></span> 计算机学院 · AI Agent 方向</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- TOOLBAR -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="toolbar">
+  <input type="text" class="search-box" placeholder="搜索问题关键词...（如: ReAct / Tool / 架构 / LangChain）" oninput="filterQuestions()" id="search">
+  <div class="filter-tags" id="filters">
+    <button class="filter-tag active" data-cat="all" onclick="setFilter('all',this)">全部 (50)</button>
+    <button class="filter-tag" data-cat="basic" onclick="setFilter('basic',this)">基础 (10)</button>
+    <button class="filter-tag" data-cat="arch" onclick="setFilter('arch',this)">架构 (15)</button>
+    <button class="filter-tag" data-cat="react" onclick="setFilter('react',this)">ReAct (10)</button>
+    <button class="filter-tag" data-cat="eng" onclick="setFilter('eng',this)">工程 (10)</button>
+    <button class="filter-tag" data-cat="innov" onclick="setFilter('innov',this)">创新 (5)</button>
+  </div>
+  <span class="result-count" id="count">显示 50/50</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY 1: 项目基础 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="questions">
+
+<div class="cat-header"><span class="cat-dot" style="background:var(--blue);"></span>1. 项目基础理解 <span class="cat-count">10 个问题</span></div>
+
+<div class="q-card highlight" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">01</span>
+    <span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">为什么你的系统叫 Agent，而不是 Chatbot？</span>
+    <span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 Agent 核心概念的理解——是否清楚 Agent 和 Chatbot 在架构层面的本质区别，而非仅停留在名词层面。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">Chatbot 收到问题后直接从模型训练数据生成回答——信息来源是模型记忆，无法验证。我的 Agent 不同：收到用户请求后，它不直接回答，而是进入 ReAct 循环——思考需要什么信息、通过 ToolRegistry 调用对应的 Tool 查询真实数据、观察结果后再决定下一步。系统有 6 个 Tool，每个 Tool 返回的数据都有明确来源。另外 Agent 的每一步决策都记录在 Trace 中——13 步可追溯。Chatbot 的输出没有数据来源，Agent 的输出可以追溯到具体的 Tool 调用。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"Agent 的'智能'体现在哪里？是 LLM 智能还是系统智能？"</p>
+      <p class="followup-a">两个层面。LLM 层面——DeepSeek 理解自然语言，自主决定调用哪个 Tool、传什么参数；系统层面——EXECUTION_PLAN 定义了工作流逻辑，blocker_check 定义了安全约束，ToolRegistry 实现了 O(1) 动态调度。LLM 提供灵活性，系统提供可靠性。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">02</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">你的系统和直接调用 DeepSeek API 有什么区别？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否理解"框架"与"API 调用"的区别——是否只是在 API 外包了一层皮。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">直接调 DeepSeek API 只是把用户问题转发给大模型，模型从训练数据生成回答——没有数据验证。我的系统在 DeepSeek 之上构建了完整的 Agent 框架：LLMProvider 抽象层隔离 SDK 依赖，ToolRegistry 注册中心管理工具调度，ReAct 状态机控制推理循环，blocker_check 实现业务阻断，Trace 记录每一步决策。直接调 API 是一个函数调用，我的系统是一个有架构、有测试、有审计追踪的框架。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"如果 DeepSeek API 挂了，你的系统还能用吗？"</p>
+      <p class="followup-a">能。系统同时实现了 RuleBasedReActAgent——基于规则化状态机的 Agent，完全离线运行，不依赖任何 LLM API。<code>python demo.py</code> 默认就是离线模式。LLM 模式和规则模式共享相同的 <code>run()</code> 接口和 ReActResult 返回类型。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">03</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">大模型已经可以生成学习计划，为什么还需要你的系统？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察项目的存在价值——是否解决了 LLM 本身无法解决的问题。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">大模型可以生成"看起来合理"的学习计划，但没法保证数据正确。它可能告诉你 Python 需要学 2-3 个月——这个数字来自训练数据的统计，不是来自课程大纲。我的系统通过 Tool Calling 查询真实课程数据库，Python = 24 小时、7 个模块——这个数据是可验证的。更重要的是，LLM 不知道课程之间的先修依赖关系——Spark 需要 Hadoop，Hadoop 需要 Linux+Java——我的系统通过 DAG 感知的递归展开完整梳理这些关系。LLM 生成的是"看法"，Agent 输出的是"事实"。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">04</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">你的项目解决了什么实际问题？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察问题定义是否清晰——是否从真实痛点出发，而非技术驱动。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三个实际问题。第一，课程先修依赖关系复杂——学 Spark 前需要 Python + Hadoop，Hadoop 又要 Linux + Java。人工梳理容易遗漏。第二，时间约束下的可行性评估——每天 2 小时、只有 30 天，某门课能不能学完？传统方式凭感觉判断。第三，学习资源分散——学生需要自己搜索教材、视频、教程。我的系统通过 Tool Calling 自动完成这三件事：先修验证、时间计算、资源推荐。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">05</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">你的项目目标用户是谁？使用场景是什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否做了用户画像和场景分析——项目是否有明确的受众。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">目标用户是想自学编程或大数据技术的大学生。典型场景：一个计算机专业大三学生想自学 Spark，但不确定自己是否满足先修条件、不知道要学多久。他输入"Spark，每天 2 小时，30 天"——Agent 告诉他：先修条件不满足，需要先学 Python(24h) + Linux(20h) + Java(32h) + Hadoop(36h)，共 112 小时，建议先花 56 天完成先修课。这个信息比问学长、搜帖子可靠得多。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">06</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">你的系统输入什么？输出什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察系统的 I/O 边界是否清晰——是否理解系统做什么、不做什么。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">输入：课程名称、每日学习小时数、学习天数、用户已完成的课程（可选）。输出：包含四个部分——课程概览（名称/学时/难度）、先修条件检查结果（满足/缺失哪些课）、学习路径（按顺序排列的模块列表，标注必修/可选）、每日学习计划（每天学什么、学习/复习/评估类型）。如果先修不满足或时间不足，输出具体的错误信息和调整建议。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">07</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">你的课程数据库包含哪些课程？如何维护？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察数据层的设计——是否考虑了数据维护的便利性和扩展性。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">目前包含 10 门课程，覆盖 Python 基础到大数据技术栈（SQL、Linux、Git、Java、Hadoop、Hive、Spark、Kafka、Flink）。数据存储在 <code>data/courses.json</code> 和 <code>data/prerequisites.json</code> 中。添加新课程只需在 JSON 中添加一条记录——代码零改动。DataLoader 层有 Pydantic 验证，加载时自动检查数据格式。后续可以替换为 SQLite 或 PostgreSQL，只需修改 DataLoader 实现，Tool 层和 Agent 层完全不受影响。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">08</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">这个项目是你一个人完成的吗？工作量如何？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察项目的独立完成度和工作量是否真实可信。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">是的，独立完成。26 个 Python 源文件，3,707 行代码，1815 行测试代码（162 个测试用例），覆盖率约 90%。从架构设计到编码实现到测试编写全部自己完成。最耗时的部分是 ReAct 状态机的设计和 ToolRegistry 的实现——因为需要同时支持规则化 FSM 和 LLM 驱动两种模式，还要保证接口一致。其次是先修树的 DAG 感知递归——处理共享依赖和循环依赖的边界情况花了不少调试时间。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">09</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">这个项目属于 AI 的哪个子方向？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 AI 研究方向的宏观认知——是否能准确定位自己的项目。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">AI Agent（智能体）。具体来说，是 LLM-based Agent 的工程化设计与实现。区别于 LLM 应用（调 API 做 Chatbot），Agent 需要具备 Tool Calling、任务规划、环境交互能力。也区别于多 Agent 系统（如 AutoGPT）——我这个目前是单 Agent，但架构上预留了扩展点。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="basic">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">10</span><span class="q-tags"><span class="q-tag basic">基础</span></span>
+    <span class="q-text">你觉得这个项目最值得展示的是什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察自我认知——是否清楚自己项目的亮点和边界。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">最值得展示的不是"能生成学习计划"——大模型也能做。而是架构设计：四层分离的工程架构、O(1) 的 ToolRegistry、可替换的 LLMProvider 抽象、DAG 感知的先修递归、13 步可审计的 Trace、162 个测试用例。这个项目不是在展示 AI 能力，而是在展示如何为 AI 构建一个可靠的运行框架。</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY 2: 系统架构 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="cat-header"><span class="cat-dot" style="background:var(--purple);"></span>2. 系统架构设计 <span class="cat-count">15 个问题</span></div>
+
+<div class="q-card highlight" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">11</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">请介绍你的整体系统架构。</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察架构全局观——是否能清晰、完整地描述系统拓扑。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">系统采用四层分离架构，从外到内依次是：Provider 层封装 LLM API 调用，当前实现 DeepSeek（OpenAI 兼容协议），通过 LLMProvider ABC 抽象使 Agent 不依赖具体 SDK。Agent 层包含 AgentRunner（总入口）、LLMReActAgent（ReAct 推理引擎）和 ToolRegistry（O(1) 工具调度中心）。Tools 层实现 6 个工具——4 个课程规划工具加 2 个 Demo 工具，以及 Scheduler 调度器和 ResourceProvider 资源提供器。Models 层定义 10 个 Pydantic 数据模型，字段名与 courses.json 全链路一致。依赖方向严格向下，零循环导入。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"AgentRunner 和 LLMReActAgent 的职责边界在哪里？"</p>
+      <p class="followup-a">AgentRunner 是胶水层——它不包含业务逻辑。职责是：组装依赖（Registry/PromptLoader/Agent）、加载 System Prompt、调用 Agent.run()、格式化输出。LLMReActAgent 是引擎——负责 ReAct 循环的具体执行。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">12</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">为什么采用分层架构？不分层会怎样？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对分层设计价值的理解——是否知道每层存在的理由。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">分层是为了隔离变化。举例：如果 Provider 和 Agent 耦合在一起，换一个 LLM（从 DeepSeek 换成 Claude）就要改 Agent 核心代码。分层后只需在 Provider 层新增一个 ClaudeProvider 类——Agent 层零改动。同样的道理，新增一个 Tool 只需在 Tools 层注册，Agent 层零改动。分层不是为了让架构图好看——每个层的边界都是一条"改动隔离线"。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">13</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">AgentRunner 具体负责什么？为什么需要它？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否理解了"编排器"和"引擎"的职责分离。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">AgentRunner 是薄胶水层——它的唯一职责是组件编排，不包含任何业务逻辑。具体做了五件事：初始化 Registry/PromptLoader/Agent（支持依赖注入）、调用 <code>_validate_input()</code> 做参数验证、通过 PromptLoader 加载和注入 System Prompt、委托 Agent.run() 执行 ReAct 循环、调用 <code>format_result()</code> 格式化输出。它不调用 Tool、不操作 FSM 状态、不做推理决策——这些是 LLMReActAgent 的职责。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">14</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">为什么需要 LLMProvider 抽象？不能直接调 DeepSeek API 吗？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对依赖倒置原则的理解——是否明白"面向接口编程"的工程价值。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">可以直接调，但那样 Agent 代码就绑死在 DeepSeek 上了。LLMProvider 用 ABC 定义 <code>chat(messages, tools) → LLMResponse</code> 统一接口，Agent 只依赖这个接口。结果是：Agent 代码从头到尾没有 <code>import openai</code>，没有 <code>import anthropic</code>。换 Claude 只需实现 ClaudeProvider(LLMProvider)——Agent 一行不改。这就是依赖倒置：高层模块不依赖低层模块，两者都依赖抽象。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">15</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">为什么 Tool 不能直接写在 Agent 里面？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对模块解耦价值的理解。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">写在 Agent 里面会导致三个问题：每次加 Tool 要改 Agent 代码（违反开闭原则）、Tool 无法独立测试（和 Agent 循环耦合）、Tool 无法被复用（比如 get_course_info 被 generate_learning_plan 编排器复用）。通过 ToolRegistry 注册后，Tool 是独立模块——可以单独测试、单独替换、被多个调用方复用。Agent 只知道 <code>registry.invoke(name, **kwargs)</code>，不关心具体有哪些 Tool。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">16</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">Tool Registry 解决什么工程问题？不用它会怎样？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否理解 Registry Pattern 对比 if/elif 链的工程优势。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">ToolRegistry 用 Python dict 实现 O(1) 工具查找，替代传统的 if/elif 条件链。三个工程优势：扩展性——加新 Tool 只需 <code>registry.register(ToolEntry(...))</code>，Agent 代码零改动；元数据管理——每个 Tool 的 name/description/input_schema/output_schema 统一存储，<code>list_tools()</code> 直接导出为 LLM Function Calling Schema；测试友好——可以注入 Mock Registry 测试 Agent，不需要真实 Tool 实现。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">17</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">新增一个 Tool 需要修改哪些模块？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">验证"零改动"的声明是否真实——是否真的做到了开闭原则。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">两步。第一步：在 <code>src/tools/</code> 下实现工具函数，遵循签名 <code>def my_tool(**kwargs) → dict</code>，返回 <code>{"success": true, "data": {...}}</code> 或 <code>{"success": false, "error": {...}}</code>。第二步：在创建 Registry 时注册——<code>registry.register(ToolEntry(name="my_tool", description="...", input_schema={...}, output_schema={...}, function=my_tool))</code>。Agent 层（AgentRunner / LLMReActAgent / react_loop）、Provider 层、Models 层——全部不需要修改。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">18</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">你的系统如何保证模块解耦？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察解耦的具体实现手段——不是喊口号，而是有代码证据。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">四个层面。依赖注入：AgentRunner 构造函数接受可选的 registry/agent/prompt_loader，测试时可以注入 Mock。接口隔离：LLMProvider 是 ABC，Agent 只依赖这个抽象，不依赖 DeepSeek SDK。注册模式：Tool 通过 ToolRegistry 注册，Agent 通过 <code>invoke(name, **kwargs)</code> 调用——Agent 不知道具体有哪些 Tool。统一返回协议：所有 Tool 返回 <code>{"success": bool, "data"/"error": {...}}</code>，Agent 通过检查 success 字段做决策，不依赖 Tool 内部实现。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">19</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">你的 Orchestrator 在哪里？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否理解编排器和工作流引擎的概念。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">有两个层面的编排。Agent 层面：LLMReActAgent 是主编排器——它通过 ReAct 循环编排 Thought→ToolCall→Observation 的流程。Workflow 层面：<code>generate_learning_plan</code> 是课程规划的编排器——它编排 6 个步骤（前 3 步复用已有 Tool，后 3 步是编排器独有逻辑）。两个编排器职责不同：Agent 编排器负责推理循环，Workflow 编排器负责业务流程。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"编排器和普通函数调用有什么区别？"</p>
+      <p class="followup-a">普通函数调用是同步的、固定的。编排器的每一步之间有状态传递、有阻断检查、有 Trace 记录。generate_learning_plan 在执行第 2 步后发现先修冲突——它不会继续执行第 3、4 步，而是立即返回 PREREQUISITE_CONFLICT 错误。编排器知道"什么时候该停"。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">20</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">ToolAdapter 是做什么的？为什么不放在 ToolRegistry 里？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对单一职责和关注点分离的理解。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">ToolAdapter（<code>to_openai_tools()</code>）负责将 ToolRegistry 的元数据转换为 OpenAI Function Calling 的 Schema 格式——只有 20 行代码。不放在 ToolRegistry 里是因为：ToolRegistry 的职责是工具注册和调度，不关心下游格式。如果以后不用 OpenAI 格式而用 Anthropic 的 tool_use 格式，只需新增一个 Adapter 函数——ToolRegistry 完全不受影响。这就是单一职责。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">21</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">你的 RuleBasedReActAgent 和 LLMReActAgent 是什么关系？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否设计了合理的继承/组合关系——是否可替换。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">它们共享相同的 <code>run(course_name, daily_hours, duration_days, user_knowledge) → ReActResult</code> 接口。RuleBasedReActAgent 通过 EXECUTION_PLAN（预定义的 ToolStep 列表）确定执行序列，不需要 LLM。LLMReActAgent 通过 LLM Provider 动态推理决定下一步。AgentRunner 接受任意一个——注入哪个就用哪个，接口完全一致。这种设计让系统既可以离线运行（无需 API Key），也可以接 LLM 运行。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">22</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">Prompt Loader 支持变量注入，为什么需要这个设计？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 Prompt 工程化的思考——是否让 Prompt 变成可配置的资源。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">如果 Prompt 写死在代码里，修改 Prompt 就要改代码。Prompt Loader 支持 <code>{{tool_list}}</code>、<code>{{workflow}}</code>、<code>{{current_date}}</code>、<code>{{user_input}}</code>、<code>{{output_schema}}</code> 五个变量注入。工具列表从 ToolRegistry 实时获取——注册新 Tool 后 Prompt 自动更新。工作流描述从 Agent 的 EXECUTION_PLAN 生成——改工作流不需要改 Prompt 文件。这是 Prompt 的"配置化管理"。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">23</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">你的 Scheduler 是怎么设计的？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察独立组件的设计质量——是否有清晰的接口和算法。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">Scheduler 是独立的调度器类，接收模块列表和每日小时数，输出按天分配的 DailyPlan。核心算法是贪心打包：每天填充模块直到达到 daily_hours 上限，跨天模块自动拆分并标记 continuation。每 5 个学习日插入一个复习日，最后一个模块后插入评估日。Scheduler 不依赖 Course/Topic/Agent 等业务模型——它是纯调度组件，可以单独测试和替换。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">24</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">ResourceProvider 为什么用 Provider 模式？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对未来扩展的前瞻性设计——是否为后续优化预留了接口。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">当前 MVP 用 HardCodedResourceProvider——基于关键词匹配的内置资源映射表。但接口定义是 <code>ResourceProvider</code> Protocol：<code>get_resources(topic, difficulty) → list[Resource]</code>。后续可以替换为 WebResourceProvider（调用在线课程 API）、RAGResourceProvider（向量检索知识库）、DBResourceProvider（从数据库查询）。编排器只依赖 Protocol，不依赖具体实现——替换 Provider 时编排器零改动。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="arch">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">25</span><span class="q-tags"><span class="q-tag arch">架构</span></span>
+    <span class="q-text">你的数据模型层为什么用 Pydantic？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察技术选型的合理性。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三个原因。运行时验证：从 courses.json 加载数据时自动校验字段类型和约束——无效数据在入口就被拦截。零 alias：字段名从 JSON 到 Model 到 Tool 输出全链路一致，不需要 <code>Field(alias=...)</code>。JSON Schema 生成：<code>model_json_schema()</code> 可以自动生成 JSON Schema，后续可以用于自动生成 Tool 的 input_schema，消除手写重复。</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY 3: ReAct & Tool Calling -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="cat-header"><span class="cat-dot" style="background:var(--cyan);"></span>3. ReAct 与 Tool Calling <span class="cat-count">10 个问题</span></div>
+
+<div class="q-card highlight" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">26</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">你的 ReAct 机制具体如何实现？ReAct 是不是只是 Prompt？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">这是高频问题。考察是否真正实现了 ReAct 循环，而非仅在 Prompt 里写了"请思考"。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">不只是 Prompt。ReAct 在我的系统中有两层实现。规则引擎模式：EXECUTION_PLAN 定义了 4 个 ToolStep，每个步骤包含 thought_template（推理模板）、params_builder（参数构建）、blocker_check（阻断检查）。Agent 遍历这些步骤，在每个步骤执行 THINKING → TOOL_EXECUTION → OBSERVATION 的状态转换，并产生 Trace 记录。LLM 模式：Agent 把 tools_schema 和对话历史发给 LLM，LLM 返回 tool_calls 或最终回答。Agent 执行 tool_calls 后将结果追加到对话历史，LLM 继续推理——直到 finish_reason="stop"。核心区别：我的 ReAct 是代码逻辑控制的循环，不是靠 Prompt 让 LLM "假装循环"。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"规则模式的 ReAct 和 LLM 模式的 ReAct 有什么本质区别？"</p>
+      <p class="followup-a">规则模式是确定性序列——每次相同输入产生相同输出。LLM 模式是动态推理——LLM 根据上下文决定下一步。规则模式不需要 API Key，适合演示和测试；LLM 模式更灵活，适合处理非标准请求。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">27</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">Agent 如何决定调用哪个 Tool？这是谁完成的？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察 Tool 选择机制——区分规则模式和 LLM 模式的不同决策方式。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">分两种模式。规则模式：由 EXECUTION_PLAN 预定义——ToolStep 列表规定了每一步调用哪个 Tool。这是确定性的，不涉及 LLM 推理。LLM 模式：由 DeepSeek LLM 动态决定——Agent 把 tools_schema 发给 LLM，LLM 根据对话上下文返回 tool_calls 列表（包含 tool_name 和 arguments）。Agent 收到 tool_calls 后通过 ToolRegistry.invoke() 执行。关键分离：LLM 决定"调用哪个"，Agent 负责"怎么调用"。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">28</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">Tool Calling 的完整流程是什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否能完整描述数据流——从用户输入到最终回答的每一步。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">五个步骤。第一步：ToolAdapter 将 ToolRegistry 的元数据转换为 OpenAI Function Calling Schema。第二步：Agent 把 Schema + System Prompt + 用户消息发给 DeepSeek。第三步：DeepSeek 返回 tool_calls 列表（不是文本回答）。第四步：Agent 遍历 tool_calls，通过 <code>registry.invoke(name, **args)</code> 执行每个 Tool。第五步：执行结果以 <code>role: "tool"</code> 追加到对话历史，LLM 继续推理。循环直到 LLM 返回 finish_reason="stop" 的文本回答。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">29</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">LLM 负责什么，代码负责什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察职责分离是否清晰——不是 LLM 在控制一切。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">LLM 负责语义理解——理解用户意图、决定调用哪个 Tool、传什么参数、如何解读 Tool 返回结果、何时给出最终回答。代码负责工程执行——ToolRegistry 调度工具、blocer_check 检查阻断条件、Trace 记录每一步、MAX_TOOL_ROUNDS 限制循环次数。LLM 提供灵活性，代码提供可靠性。即使 LLM 选错了工具，代码层的安全约束也不会让系统崩溃。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">30</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">如果 LLM 选择了错误的工具怎么办？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察容错机制——系统是否能处理 LLM 的不当行为。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三层保护。第一，ToolRegistry.invoke() 内部有 try/except——工具执行异常被捕获为 INTERNAL_ERROR，以标准格式返回给 LLM，LLM 可以根据错误信息调整策略。第二，MAX_TOOL_ROUNDS=10——即使 LLM 反复选错工具，循环也不会无限进行。第三，blocker_check——如果工具返回了业务阻断（如先修不满足），Agent 立即终止，不会让 LLM 继续尝试。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">31</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">你的 Agent 是否真正具备自主规划能力？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察是否清楚当前系统的能力边界——不夸大。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">需要区分两个概念。规则模式下，Agent 的"规划"是预定义的——EXECUTION_PLAN 规定了 4 步序列，这不是自主规划，是确定性的工作流执行。LLM 模式下，Agent 可以在 tool_calls 层面做动态决策——LLM 根据 Tool 返回结果决定下一步，这有了一定的灵活性。但整体工作流（先查课程→检查先修→评估时间→生成计划）仍然是结构化的。不能说 Agent 具有"完全自主规划能力"——它是一个在结构化工作流中具有动态工具选择能力的 Agent。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">32</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">Thought → Action → Observation 在你的代码里对应什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察代码和理论的对应关系——不是只会在 PPT 上画图。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">Thought 对应 <code>step_def.format_thought(state)</code>——从 ToolStep 的 thought_template 生成推理文本，并作为 TraceEntry 记录。Action 对应 <code>self.registry.invoke(tool_name, **params)</code>——通过 ToolRegistry 调度执行。Observation 对应 <code>_summarize_output(result)</code>——提取 Tool 返回结果的关键字段，检查 success 标志和 blocker_check。这三个阶段在 <code>RuleBasedReActAgent.run()</code> 的 for 循环中依次执行，每个阶段产生一条 TraceEntry。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">33</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">ReAct 和普通 Chain（顺序调用）有什么区别？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 ReAct 范式独特性（观察→反馈→调整）的理解。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">普通 Chain 是 A→B→C→D 的线性执行，上一步的输出作为下一步的输入，但没有"根据结果调整行为"的能力。ReAct 的关键在于 Observation 阶段的反馈——Agent 检查 Tool 返回结果后可以决定：继续下一步（正常）、切换策略（LLM 模式下）、立即终止（阻断条件触发）。这个"根据观察结果改变执行路径"的能力是 ReAct 区别于普通 Chain 的核心。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">34</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">你的系统支持并行 Tool 调用吗？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 Tool Calling 高级特性的认知——是否知道并行调用的场景和限制。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">当前不支持并行 Tool 调用——EXECUTION_PLAN 是串行执行的，LLM 模式下也是逐个处理 tool_calls。但架构上可以扩展：OpenAI Function Calling 本身就支持在一次响应中返回多个 tool_calls，ToolRegistry 的 <code>invoke()</code> 是无状态的，理论上可以用 <code>asyncio.gather()</code> 并行执行。课程规划场景中——get_course_info 和 get_prerequisite 没有数据依赖，实际上可以并行。这是后续优化的一个方向。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="react">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">35</span><span class="q-tags"><span class="q-tag react">ReAct</span></span>
+    <span class="q-text">LLM 输出的 tool_calls 格式不稳定怎么办？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 LLM 输出不确定性的认知和应对。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">这也是为什么系统同时保留了规则模式。规则模式完全不依赖 LLM 输出——EXECUTION_PLAN 是确定性的，适用于对可靠性要求高的场景。LLM 模式下，DeepSeek Provider 的 <code>_parse_response()</code> 做了容错——tool_calls 的 arguments 如果 JSON 解析失败，fallback 为空 dict。更完善的方案（如参数校验、重试机制）在后续计划中。</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY 4: 工程实现 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="cat-header"><span class="cat-dot" style="background:var(--green);"></span>4. 工程实现 <span class="cat-count">10 个问题</span></div>
+
+<div class="q-card highlight" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">36</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">为什么设计 Trace？它是日志吗？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">高频问题。考察 Trace 的设计价值——是否理解可观测性对 Agent 系统的意义。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">Trace 不是普通日志。日志记录"发生了什么"，Trace 记录"Agent 为什么这样做"。每条 TraceEntry 包含 8 个字段——不只是记录 Tool 调用，还记录了 Agent 在 THINKING 状态时的推理内容（thought）、选择的工具（selected_tool）、观察到的结果（tool_output）。成功路径 13 步，先修冲突 7 步，时间不足 10 步。Chatbot 的输出没有审计记录——错了你不知道为什么错。Agent 的 Trace 可以定位到每一步的决策依据。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"Trace 会影响性能吗？"</p>
+      <p class="followup-a">每条 tool_output 做了摘要处理，只保留关键字段（success/data_keys/satisfied/feasible），不存储完整数据。整个 13 步 Trace 约几 KB，Python 内存中 dataclass，无磁盘 IO。性能影响可忽略。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">37</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">如何处理 Tool 执行异常？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察异常处理体系的完整性。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三层异常处理。Tool 层：每个 Tool 内部 try/except，异常返回 <code>{"success": false, "error": {"code": "INTERNAL_ERROR", ...}}</code>——不会抛未捕获异常。Registry 层：<code>invoke()</code> 内部 try/except，Tool 函数如果抛出异常，Registry 捕获并包装为 INTERNAL_ERROR。Agent 层：检查 <code>result["success"]</code>——如果为 false，Agent 转入错误处理分支（记录 Trace、构建错误响应）。所有异常都有明确的 error_code，共 8 种类型。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">38</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">如何避免 Agent 循环调用 Tool？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 Agent 安全性的工程思考。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">两层防护。规则模式：EXECUTION_PLAN 只有 4 步——执行完就结束，不会循环。LLM 模式：<code>MAX_TOOL_ROUNDS = 10</code>——即使 LLM 反复请求 tool_calls，循环最多 10 轮就强制终止。这类似于操作系统的"时间片"机制——给 LLM 足够的灵活性，但不会给它无限的控制权。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">39</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">如何测试 Agent 系统？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对 Agent 系统测试策略的理解——Agent 的测试比普通函数复杂。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">分三层测试。模型层（66 个测试）：测试 Pydantic 模型的验证、序列化、边界值。工具层（54 个测试）：单独测试每个 Tool 的输入输出、错误处理、边界情况——使用真实 courses.json 数据。Agent 集成层（42 个测试）：测试 AgentRunner 生命周期、成功路径/先修冲突/时间不足三种端到端场景、Mock Agent/Mock Registry 的依赖注入、Trace 记录的正确性。总计 162 个测试，覆盖率约 90%。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">40</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">你的系统目前有哪些工程保证？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对软件工程实践的全面理解。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">五个方面。类型安全：所有公共接口有完整类型注解，Pydantic v2 运行时验证。依赖注入：AgentRunner 构造函数接受可选参数，测试时可注入 Mock。异常体系：8 个自定义异常类，每种有明确 error_code。测试覆盖：162 测试覆盖模型/工具/Agent 三层。可审计性：每步执行产生 TraceEntry，完整记录决策过程。另外代码有完整中文文档字符串，依赖方向严格向下，零循环导入。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">41</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">DAG 感知递归具体怎么实现的？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察算法实现的细节——不是只画了概念图。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">递归函数 <code>_expand_prerequisites()</code> 维护一个 <code>visited: set[str]</code>。进入节点时检查 <code>name_lower in visited</code>——如果 True，说明这个课程已被其他路径处理过（共享依赖），直接 return，不报错。如果用户已完成该课程（<code>name in user_set</code>），也直接 return——隐式满足其先修。最大递归深度 <code>MAX_RECURSION_DEPTH=5</code> 做兜底。这和检测循环依赖不同：循环依赖需要额外维护"当前路径栈"，而 visited 只做去重——因为先修图是有向无环图。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">42</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">你的系统能否处理未知课程？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察错误处理——系统对异常输入的反应。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">可以。如果用户输入的课程不在 courses.json 中，get_course_info 返回 <code>{"success": false, "error": {"code": "COURSE_NOT_FOUND", "details": {"available_courses": [...]}}}</code>。Agent 在 Observation 阶段检测到 success=false，立即终止并列出所有 10 门可用课程。规则模式和 LLM 模式都支持——规则模式通过 blocker_check 机制，LLM 模式通过检查 tool 返回结果的 success 字段。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">43</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">如果 courses.json 损坏了怎么办？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察数据层的容错设计。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">DataLoader 的 <code>_read_json()</code> 做了两层保护：文件不存在 → FileNotFoundError（含文件路径）；JSON 解析失败 → DataCorruptionError（含行号）。<code>load_courses()</code> 在 Pydantic 验证阶段也会捕获异常——每条数据验证失败时抛出 DataCorruptionError，details 中包含文件路径、索引和 course_id，精确定位问题记录。整个加载流程不会静默失败——任何问题都有明确的错误信息和定位信息。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">44</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">你的测试中 Mock 是怎么用的？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察测试策略中的依赖隔离——是否真正做到了可测试的架构。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">两种 Mock 场景。Mock Agent：创建一个返回预设 ReActResult 的 MockAgent，注入 AgentRunner——测试 Runner 的格式化和生命周期，不触发真实 Tool 调用。Mock Registry：创建一个 ToolRegistry 并注册返回固定数据的 Tool，注入 RuleBasedReActAgent——测试 Agent 的 ReAct 循环逻辑，不需要真实数据文件。这两类 Mock 测试验证了依赖注入的有效性——Runner 和 Agent 不依赖具体实现。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="eng">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">45</span><span class="q-tags"><span class="q-tag eng">工程</span></span>
+    <span class="q-text">你的代码有 3707 行，对于一个 MVP 是不是太多了？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察代码行数的合理性——是否过度设计。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">3707 行包含完整类型注解、中文文档字符串和 1815 行测试代码。去掉测试，核心源码约 1900 行，分布在 4 个层级 26 个文件中。对于一个包含 4 层架构、10 个 Pydantic 模型、6 个 Tool、ReAct 状态机、Tool Registry、LLMProvider 抽象的系统，这个规模是合理的。很多行是结构化的定义——比如 Pydantic 模型的 Field 声明、ToolEntry 的 Schema 定义——这些不是冗余，是类型安全保障。</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CATEGORY 5: 创新点和不足 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="cat-header"><span class="cat-dot" style="background:var(--orange);"></span>5. 创新点和不足 <span class="cat-count">5 个问题</span></div>
+
+<div class="q-card highlight" data-cat="innov">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">46</span><span class="q-tags"><span class="q-tag innov">创新</span></span>
+    <span class="q-text">你的项目创新点是什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">高频问题。考察是否能清晰区分"创新"和"功能"。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">创新点是架构层面的，不是功能层面的。"能生成学习计划"不是创新——大模型也能做到。创新在于：为 LLM 构建了一个可靠的运行框架——ToolRegistry 实现 O(1) 动态工具调度、LLMProvider ABC 实现模型可替换、ReAct 状态机同时支持规则模式和 LLM 模式、blocker_check 实现业务安全约束、Trace 提供完整的执行审计。这些不是调 API 能得到的——是工程设计的价值。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"这些设计和别人做的有什么不同？"</p>
+      <p class="followup-a">大多数 Agent 项目依赖 LangChain/AutoGPT 框架。我的系统从零实现——核心 ReAct 循环不到 200 行，你可以看到每一行在做什么。而且架构为扩展而设计——加 Tool、换 Provider 都只需注册或实现接口。这不是框架的"使用者"，是框架的"设计者"视角。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="innov">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">47</span><span class="q-tags"><span class="q-tag innov">创新</span></span>
+    <span class="q-text">和 LangChain / Dify 相比有什么区别？为什么不用？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">高频问题。考察对业界方案的了解，以及自己实现的价值。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">LangChain 是通用 Agent 框架——功能丰富但封装了很多细节。用 LangChain 只能证明"我会调 API"——Agent 的推理过程、Tool 调度、Trace 记录都在框架黑盒里。我自己实现的价值在于：每一行代码都可控、可解释、可调试。而且架构更轻量——核心 Agent 循环不到 200 行。Dify 是低代码平台——适合快速搭建应用，但架构灵活性不如自建。对于课程项目来说，理解原理比使用工具更重要。</div></div>
+    <div class="q-section"><span class="s-label follow">可能追问</span>
+      <p class="followup-q">"如果以后需要更复杂的编排，你会考虑用 LangGraph 吗？"</p>
+      <p class="followup-a">会考虑。但接入 LangGraph 时不需要推倒重来——ToolRegistry 的注册和调度接口是稳定的，只需替换 Agent 层的编排逻辑。架构的分层设计就是为了这种局部替换。</p>
+    </div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="innov">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">48</span><span class="q-tags"><span class="q-tag innov">创新</span></span>
+    <span class="q-text">当前系统最大的不足是什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察自我认知——是否清楚系统的边界和缺陷。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三个不足。第一，Tool 的 input_schema 目前是手写的 JSON Schema，和 Pydantic 模型有重复——应该从 <code>model_json_schema()</code> 自动生成。第二，课程数据只有 10 门——虽然对于 MVP 足够了，但覆盖面和真实课程规划场景有差距。第三，LLM 模式下没有参数校验——如果 LLM 传了错误的参数给 Tool，目前靠 Tool 自身验证，缺少前置的参数 Schema 校验。这些都是工程优化项，不影响核心架构。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="innov">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">49</span><span class="q-tags"><span class="q-tag innov">创新</span></span>
+    <span class="q-text">如果继续开发，你会增加什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察对后续方向的规划——是否有清晰的演进路径。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三个方向按优先级排序。第一，Conversation Memory——支持多轮对话，让用户可以追问"跳过可选模块"或"改到 4 小时每天"。第二，RAG 资源检索——用向量数据库检索真实学习资源，替代当前的硬编码 ResourceProvider。第三，Multi-Agent 协作——让一个编排 Agent 把课程分析、时间规划、资源检索分发给专门的 Sub-Agent。当前 ToolRegistry 的设计已经为 Multi-Agent 留好了基础——每个 Sub-Agent 可以作为一个 Tool 注册。</div></div>
+  </div>
+</div>
+
+<div class="q-card" data-cat="innov">
+  <div class="q-card-header" onclick="this.parentElement.classList.toggle('open')">
+    <span class="q-num">50</span><span class="q-tags"><span class="q-tag innov">创新</span></span>
+    <span class="q-text">如果重新设计这个项目，你会改变什么？</span><span class="q-arrow">▼</span>
+  </div>
+  <div class="q-card-body">
+    <div class="q-section"><span class="s-label intent">导师意图</span><div class="s-content">考察反思能力——做完项目后能否识别设计中的不足。</div></div>
+    <div class="q-section"><span class="s-label answer">推荐回答</span><div class="s-content">三个改变。第一，Tool 的 Schema 从 Pydantic 模型自动生成而非手写——减少维护负担。第二，Scheduler 使用更智能的调度算法（如约束求解）替代简单贪心——当前算法会产生一些不够紧凑的安排。第三，更早引入依赖注入——项目早期 AgentRunner 是直接 new 组件的，后期重构为 DI 花了一些时间。但不改变的是：分层架构、Registry 模式、Provider 抽象——这三个设计决策在整个开发过程中没有返工，说明它们是正确的。</div></div>
+  </div>
+</div>
+
+</div><!-- #questions -->
+
+</div><!-- .container -->
+
+<script>
+// Filter + Search
+let activeFilter = 'all';
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('search').value = '';
+  filterQuestions();
+}
+
+function filterQuestions() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const cards = document.querySelectorAll('.q-card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const cat = card.dataset.cat;
+    const text = card.textContent.toLowerCase();
+    const catMatch = activeFilter === 'all' || cat === activeFilter;
+    const searchMatch = !query || text.includes(query);
+    card.style.display = (catMatch && searchMatch) ? '' : 'none';
+    if (catMatch && searchMatch) visible++;
+  });
+
+  document.getElementById('count').textContent = `显示 ${visible}/50`;
+}
+
+// Expand first card of each category by default
+document.querySelectorAll('.cat-header').forEach(header => {
+  let next = header.nextElementSibling;
+  if (next && next.classList.contains('q-card') && next.classList.contains('highlight')) {
+    next.classList.add('open');
+  }
+});
+</script>
+
+</body>
+</html>

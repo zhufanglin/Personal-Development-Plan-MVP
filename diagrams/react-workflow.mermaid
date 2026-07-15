@@ -1,0 +1,83 @@
+sequenceDiagram
+    actor User
+    participant CLI
+    participant Agent as ReAct FSM
+    participant Registry as ToolRegistry
+    participant Tool
+    participant Data
+
+    Note over User,Data: === Happy Path: Python, 3h/day, 12 days ===
+
+    User->>CLI: --course "Python" --hours 3 --days 12
+    CLI->>CLI: validate_input()
+    CLI->>Agent: run("Python", 3, 12, knowledge=[])
+
+    Note over Agent: State: GET_COURSE_INFO
+
+    Agent->>Agent: Thought: "查询Python课程信息"
+    Agent->>Registry: execute("get_course_info", course_name="Python")
+    Registry->>Tool: get_course_info("Python")
+    Tool->>Data: read courses.json
+    Data-->>Tool: Python: 24h, beginner, 7 modules, 无先修
+    Tool-->>Registry: {course_name: "Python", ...}
+    Registry-->>Agent: Observation: Python课程元数据
+
+    Note over Agent: State: GET_PREREQUISITE
+
+    Agent->>Agent: Thought: "检查先修条件"
+    Agent->>Registry: execute("get_prerequisite", course_name="Python", user_knowledge=[])
+    Registry->>Tool: get_prerequisite("Python", [])
+    Tool->>Data: read prerequisites.json
+    Data-->>Tool: Python: required=[], recommended=[]
+    Tool-->>Registry: {satisfied: true, missing: []}
+    Registry-->>Agent: Observation: 先修满足 ✅
+
+    Note over Agent: State: CALCULATE_LEARNING_TIME
+
+    Agent->>Agent: Thought: "评估时间可行性: 3h×12天=36h vs 24h需要"
+    Agent->>Registry: execute("calculate_learning_time", course_name="Python", daily_hours=3, duration_days=12)
+    Registry->>Tool: calculate_learning_time("Python", 3, 12)
+    Tool-->>Registry: {feasible: true, available: 36h, needed: 24h, buffer: 12h}
+    Registry-->>Agent: Observation: 可行 ✅
+
+    Note over Agent: State: GENERATE_LEARNING_PLAN
+
+    Agent->>Agent: Thought: "生成完整学习计划"
+    Agent->>Registry: execute("generate_learning_plan", "Python", 3, 12, false, null)
+    Registry-->>Agent: {learning_path, daily_schedule, resources}
+    Agent-->>CLI: ReActResult(success=true)
+    CLI-->>User: 📚 学习计划: Python (24h, 7模块, 12天)
+
+    Note over User,Data: === Exception: Prerequisites Conflict ===
+
+    User->>CLI: --course "Spark" --hours 2 --days 30
+    CLI->>Agent: run("Spark", 2, 30, knowledge=[])
+
+    Agent->>Registry: execute("get_course_info", course_name="Spark")
+    Registry-->>Agent: Spark: 40h, prereq=[Python, Hadoop]
+
+    Agent->>Registry: execute("get_prerequisite", "Spark", [])
+    Registry-->>Agent: {satisfied: false, missing: [Python(24h), Hadoop(36h)]}
+    Note over Agent: Hadoop recursively needs Linux(20h)+Java(32h)
+    Note over Agent: PREREQ_CONFLICT → terminal state
+
+    Agent-->>CLI: ReActResult(success=false, error_type="prerequisites_conflict")
+    CLI-->>User: ⚠️ 先修不满足<br/>缺失: Python(24h)+Linux(20h)+Java(32h)+Hadoop(36h)<br/>总先修: 112h / 56天(2h/day)
+
+    Note over User,Data: === Exception: Time Insufficient ===
+
+    User->>CLI: --course "Flink" --hours 1 --days 10 --knowledge "Python,Linux,Java,Spark"
+    CLI->>Agent: run("Flink", 1, 10, knowledge=["Python","Linux","Java","Spark"])
+
+    Agent->>Registry: execute("get_course_info", course_name="Flink")
+    Registry-->>Agent: Flink: 36h, 8 modules
+
+    Agent->>Registry: execute("get_prerequisite", "Flink", ["Python","Linux","Java","Spark"])
+    Registry-->>Agent: {satisfied: true} ✅
+
+    Agent->>Registry: execute("calculate_learning_time", "Flink", 1, 10)
+    Registry-->>Agent: {feasible: false, available: 10h, needed: 36h, deficit: 26h}
+    Note over Agent: TIME_INSUFFICIENT → terminal state
+
+    Agent-->>CLI: ReActResult(success=false, error_type="time_insufficient")
+    CLI-->>User: ⚠️ 时间不足<br/>方案A: 延长至36天<br/>方案B: 增加至3.6h/天<br/>方案C: 缩减至31h(必学)
